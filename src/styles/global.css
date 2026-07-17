@@ -141,6 +141,7 @@ button:disabled {
   border-color: transparent;
 }
 
+.btn.active,
 .btn-ghost.active,
 .tool-btn.active {
   background: rgba(120, 146, 103, 0.22);
