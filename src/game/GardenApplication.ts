@@ -792,12 +792,13 @@ export class GardenApplication {
         })
       } else {
         const { width, height } = this.viewport
+        const outputScale = multiplier * (this.app.renderer.resolution || 1)
         const rt = RenderTexture.create({
-          width: width * multiplier,
-          height: height * multiplier,
+          width: Math.round(width * outputScale),
+          height: Math.round(height * outputScale),
         })
         try {
-          const transform = new Matrix().scale(multiplier, multiplier)
+          const transform = new Matrix().scale(outputScale, outputScale)
           this.app.renderer.render({
             container: this.app.stage,
             target: rt,
