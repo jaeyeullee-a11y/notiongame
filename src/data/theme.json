@@ -1,0 +1,39 @@
+{
+  "colors": {
+    "parchment": "#E8E1C9",
+    "meadowGreen": "#789267",
+    "darkFoliage": "#405B45",
+    "lightFoliage": "#A8B889",
+    "soil": "#8A6951",
+    "stone": "#AAA698",
+    "water": "#739BA2",
+    "uiCream": "#F4F0E3",
+    "accent": "#B66D4F",
+    "ink": "#2F342C",
+    "inkMuted": "#5C6356",
+    "panelBorder": "#D5CCB4"
+  },
+  "world": {
+    "width": 2400,
+    "height": 1600,
+    "tileSize": 64,
+    "cols": 38,
+    "rows": 25,
+    "cameraPadding": 200,
+    "defaultZoom": 1,
+    "minZoom": 0.5,
+    "maxZoom": 2,
+    "initialViewportWidth": 1200,
+    "initialViewportHeight": 800
+  },
+  "editor": {
+    "maxUndo": 50,
+    "autosaveIdleMs": 5000,
+    "transformMergeMs": 500,
+    "tooltipDelayMs": 500,
+    "assetPanelWidth": 280,
+    "assetPanelCollapsedWidth": 56,
+    "topBarHeight": 52,
+    "bottomBarHeight": 48
+  }
+}

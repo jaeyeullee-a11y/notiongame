@@ -1,0 +1,36 @@
+{
+  "types": [
+    {
+      "id": "grass",
+      "displayName": "Meadow Grass",
+      "color": "#789267",
+      "colorAlt": "#6F8A5C",
+      "variations": 2
+    },
+    {
+      "id": "soil",
+      "displayName": "Garden Soil",
+      "color": "#8A6951",
+      "colorAlt": "#7A5B45",
+      "variations": 2
+    },
+    {
+      "id": "stone",
+      "displayName": "Stone Path",
+      "color": "#AAA698",
+      "colorAlt": "#9C978A",
+      "variations": 2
+    },
+    {
+      "id": "water",
+      "displayName": "Pond Water",
+      "color": "#739BA2",
+      "colorAlt": "#668E96",
+      "variations": 2
+    }
+  ],
+  "brushes": {
+    "sizes": [1, 2, 4],
+    "shapes": ["round", "path"]
+  }
+}
