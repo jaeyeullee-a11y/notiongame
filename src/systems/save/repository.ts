@@ -61,17 +61,23 @@ export async function listSaveSlots(): Promise<SaveSlotSummary[]> {
   return listLocal(username)
 }
 
+/** Normalize loaded garden data; Zod defaults migrate missing v1 season/weather. */
+function parseGardenSave(raw: unknown, slot: number): GardenSaveData {
+  const parsed = GardenSaveDataSchema.safeParse(raw)
+  if (!parsed.success) {
+    throw new Error(`Save slot ${slot} contains invalid data and was not loaded.`)
+  }
+  // Persist path always writes schemaVersion 2 via toSaveData(); keep parsed defaults here.
+  return parsed.data
+}
+
 async function loadLocal(
   username: string,
   slot: number,
 ): Promise<GardenSaveData | null> {
   const record = await db.saveSlots.get([usernameKey(username), slot])
   if (!record) return null
-  const parsed = GardenSaveDataSchema.safeParse(record.garden)
-  if (!parsed.success) {
-    throw new Error(`Save slot ${slot} contains invalid data and was not loaded.`)
-  }
-  return parsed.data
+  return parseGardenSave(record.garden, slot)
 }
 
 async function loadCloud(
@@ -87,11 +93,7 @@ async function loadCloud(
   }
   if (!res.ok) throw new Error(data.error ?? '세이브를 불러오지 못했습니다.')
   if (!data.slot) return null
-  const parsed = GardenSaveDataSchema.safeParse(data.slot.garden)
-  if (!parsed.success) {
-    throw new Error(`Save slot ${slot} contains invalid data and was not loaded.`)
-  }
-  return parsed.data
+  return parseGardenSave(data.slot.garden, slot)
 }
 
 export async function loadSlot(slot: number): Promise<GardenSaveData | null> {

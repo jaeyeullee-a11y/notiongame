@@ -7,7 +7,9 @@ import type {
   GardenSaveData,
   GardenSettings,
   PlacedGardenObject,
+  Season,
   TerrainCell,
+  WeatherType,
 } from '@/schemas/garden'
 import { createNewGardenSave } from '@/systems/generator/surpriseMe'
 
@@ -20,6 +22,8 @@ type GardenState = {
   objects: PlacedGardenObject[]
   camera: CameraState
   settings: GardenSettings
+  season: Season
+  weather: WeatherType
   playTimeSeconds: number
   generatorSeed?: number
   dirty: boolean
@@ -30,6 +34,8 @@ type GardenState = {
   setName: (name: string) => void
   setCamera: (camera: CameraState) => void
   setSettings: (settings: Partial<GardenSettings>) => void
+  setSeason: (season: Season) => void
+  setWeather: (weather: WeatherType) => void
   addObject: (object: PlacedGardenObject) => void
   removeObject: (instanceId: string) => void
   updateObject: (instanceId: string, patch: Partial<PlacedGardenObject>) => void
@@ -53,6 +59,8 @@ export const useGardenStore = create<GardenState>((set, get) => ({
   objects: initial.objects,
   camera: initial.camera,
   settings: initial.settings,
+  season: initial.season,
+  weather: initial.weather,
   playTimeSeconds: 0,
   generatorSeed: undefined,
   dirty: false,
@@ -68,6 +76,8 @@ export const useGardenStore = create<GardenState>((set, get) => ({
       objects: save.objects.map((o) => ({ ...o })),
       camera: { ...save.camera },
       settings: { ...save.settings },
+      season: save.season,
+      weather: save.weather,
       playTimeSeconds: save.metadata.playTimeSeconds,
       generatorSeed: save.metadata.generatorSeed,
       dirty: false,
@@ -90,6 +100,10 @@ export const useGardenStore = create<GardenState>((set, get) => ({
       settings: { ...state.settings, ...settings },
       dirty: true,
     })),
+
+  setSeason: (season) => set({ season, dirty: true }),
+
+  setWeather: (weather) => set({ weather, dirty: true }),
 
   addObject: (object) =>
     set((state) => ({
@@ -125,7 +139,7 @@ export const useGardenStore = create<GardenState>((set, get) => ({
   toSaveData: () => {
     const state = get()
     return {
-      schemaVersion: 1 as const,
+      schemaVersion: 2 as const,
       id: state.id || createId('garden'),
       name: state.name,
       createdAt: state.createdAt,
@@ -135,6 +149,8 @@ export const useGardenStore = create<GardenState>((set, get) => ({
       terrain: state.terrain,
       objects: state.objects,
       settings: state.settings,
+      season: state.season,
+      weather: state.weather,
       metadata: {
         objectCount: state.objects.length,
         playTimeSeconds: state.playTimeSeconds,

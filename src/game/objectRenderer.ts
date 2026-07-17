@@ -1,12 +1,20 @@
 import { Assets, Container, Graphics, Sprite, Texture } from 'pixi.js'
 import { assetsById } from '@/lib/assets'
 import { sortObjectsByDepth } from '@/lib/depth'
-import type { PlacedGardenObject } from '@/schemas/garden'
+import type { PlacedGardenObject, Season } from '@/schemas/garden'
 
 type ObjectVisual = {
   root: Container
   sprite: Sprite
   footprint: Graphics
+  assetId: string
+}
+
+const SEASON_TINTS: Record<Season, number> = {
+  spring: 0xffffff,
+  summer: 0xe8f0d8,
+  autumn: 0xf0d890,
+  winter: 0xd8e8f0,
 }
 
 export class ObjectRenderer {
@@ -15,6 +23,7 @@ export class ObjectRenderer {
   private textures = new Map<string, Texture>()
   private selectedId: string | null = null
   private ghost: ObjectVisual | null = null
+  private season: Season = 'spring'
 
   constructor() {
     this.container.label = 'objects'
@@ -35,8 +44,10 @@ export class ObjectRenderer {
     objects: PlacedGardenObject[],
     selectedId: string | null,
     showFootprints: boolean,
+    season: Season,
   ): void {
     this.selectedId = selectedId
+    this.season = season
     const alive = new Set(objects.map((o) => o.instanceId))
 
     for (const [id, visual] of this.visuals) {
@@ -103,7 +114,7 @@ export class ObjectRenderer {
     }
 
     root.addChild(footprint, sprite)
-    return { root, sprite, footprint }
+    return { root, sprite, footprint, assetId }
   }
 
   private applyTransform(
@@ -117,6 +128,12 @@ export class ObjectRenderer {
     visual.root.scale.set(object.flipX ? -object.scale : object.scale, object.scale)
     visual.root.zIndex = object.y + object.sortOffset
     visual.sprite.alpha = 1
+
+    const texture =
+      (asset ? this.textures.get(asset.spriteUrl) : undefined) ?? Texture.WHITE
+    if (texture !== Texture.WHITE) {
+      visual.sprite.tint = SEASON_TINTS[this.season]
+    }
 
     visual.footprint.clear()
     if (showFootprint && asset) {
