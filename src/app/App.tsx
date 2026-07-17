@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { GardenCanvas } from '@/components/GardenCanvas'
 import { AuthDialog } from '@/components/dialogs/AuthDialog'
+import { ExportDialog } from '@/components/dialogs/ExportDialog'
 import { OnboardingDialog } from '@/components/dialogs/OnboardingDialog'
 import { SaveDialog } from '@/components/dialogs/SaveDialog'
 import { SettingsDialog } from '@/components/dialogs/SettingsDialog'
@@ -76,7 +77,7 @@ export default function App() {
 
   return (
     <div className={`app-shell ${hideChrome ? 'observe-hidden' : ''}`}>
-      <TopBar gardenApp={gardenApp} />
+      <TopBar />
       <div className={`workspace ${assetPanelCollapsed ? 'collapsed' : ''}`}>
         <AssetLibrary />
         <div className="canvas-pane">
@@ -93,6 +94,7 @@ export default function App() {
       <OnboardingDialog />
       <SaveDialog gardenApp={gardenApp} />
       <SettingsDialog gardenApp={gardenApp} />
+      <ExportDialog gardenApp={gardenApp} />
     </div>
   )
 }
