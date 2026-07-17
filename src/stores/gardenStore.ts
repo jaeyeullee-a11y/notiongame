@@ -143,10 +143,11 @@ export const useGardenStore = create<GardenState>((set, get) => ({
     }
   },
 
-  tickPlayTime: (deltaSeconds) =>
-    set((state) => ({
-      playTimeSeconds: state.playTimeSeconds + deltaSeconds,
-    })),
+  tickPlayTime: (deltaSeconds) => {
+    // Mutate without notifying subscribers — playtime is metadata only.
+    const state = get()
+    state.playTimeSeconds += deltaSeconds
+  },
 }))
 
 export function resetGardenToEmpty(): void {

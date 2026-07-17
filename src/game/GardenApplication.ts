@@ -54,6 +54,15 @@ export class GardenApplication {
   private boundKeyDown: (e: KeyboardEvent) => void
   private boundKeyUp: (e: KeyboardEvent) => void
   private host: HTMLElement | null = null
+  private destroyed = false
+  private lastTerrainRef: TerrainCell[] | null = null
+  private lastObjectsRef: PlacedGardenObject[] | null = null
+  private lastSelectedId: string | null = null
+  private lastObserve = false
+  private lastSnapshot = false
+  private lastTool = ''
+  private lastAssetId: string | null = null
+  private playTimeAccumulator = 0
 
   constructor() {
     this.boundKeyDown = (e) => this.onKeyDown(e)
@@ -62,6 +71,7 @@ export class GardenApplication {
 
   async mount(host: HTMLElement): Promise<void> {
     this.host = host
+    this.destroyed = false
     const app = new Application()
     await app.init({
       resizeTo: host,
@@ -69,9 +79,14 @@ export class GardenApplication {
       background: theme.colors.parchment,
       resolution: Math.min(window.devicePixelRatio || 1, 2),
       autoDensity: true,
+      preference: 'webgl',
     })
+    if (this.destroyed) {
+      app.destroy(true)
+      return
+    }
     this.app = app
-    host.appendChild(app.canvas)
+    host.replaceChildren(app.canvas)
     this.viewport = { width: host.clientWidth, height: host.clientHeight }
 
     this.world.addChild(
@@ -87,25 +102,51 @@ export class GardenApplication {
 
     this.drawWorldBounds()
     await this.objectRenderer.loadTextures()
-    this.syncFromStores()
+    if (this.destroyed) return
+    this.syncFromStores(true)
     this.bindPointer(app)
     window.addEventListener('keydown', this.boundKeyDown)
     window.addEventListener('keyup', this.boundKeyUp)
 
     this.unsubscribers.push(
-      useGardenStore.subscribe(() => this.syncFromStores()),
-      useEditorStore.subscribe(() => this.syncFromStores()),
+      useGardenStore.subscribe((state, prev) => {
+        if (
+          state.terrain !== prev.terrain ||
+          state.objects !== prev.objects ||
+          state.camera !== prev.camera
+        ) {
+          this.syncFromStores()
+        }
+      }),
+      useEditorStore.subscribe((state, prev) => {
+        if (
+          state.selectedObjectId !== prev.selectedObjectId ||
+          state.observeMode !== prev.observeMode ||
+          state.snapshotMode !== prev.snapshotMode ||
+          state.tool !== prev.tool ||
+          state.selectedAssetId !== prev.selectedAssetId ||
+          state.brushSize !== prev.brushSize ||
+          state.terrainTypeId !== prev.terrainTypeId
+        ) {
+          this.syncFromStores()
+        }
+      }),
     )
 
     app.ticker.add((ticker) => {
+      if (this.destroyed || !this.app) return
       const delta = ticker.deltaMS / 1000
       this.terrainRenderer.update(delta, useGardenStore.getState().terrain)
       this.wildlife.update(delta, useGardenStore.getState().objects)
-      useGardenStore.getState().tickPlayTime(delta)
+      this.playTimeAccumulator += delta
+      if (this.playTimeAccumulator >= 1) {
+        useGardenStore.getState().tickPlayTime(this.playTimeAccumulator)
+        this.playTimeAccumulator = 0
+      }
     })
 
     const ro = new ResizeObserver(() => {
-      if (!this.host || !this.app) return
+      if (!this.host || !this.app || this.destroyed) return
       this.viewport = {
         width: this.host.clientWidth,
         height: this.host.clientHeight,
@@ -136,17 +177,46 @@ export class GardenApplication {
     }
   }
 
-  private syncFromStores(): void {
+  private syncFromStores(force = false): void {
+    if (this.destroyed || !this.app) return
     const garden = useGardenStore.getState()
     const editor = useEditorStore.getState()
-    this.terrainRenderer.render(garden.terrain)
-    this.objectRenderer.sync(
-      garden.objects,
-      editor.selectedObjectId,
-      !editor.observeMode && !editor.snapshotMode,
-    )
+
+    if (force || garden.terrain !== this.lastTerrainRef) {
+      this.terrainRenderer.render(garden.terrain)
+      this.lastTerrainRef = garden.terrain
+    }
+
+    const showFootprints = !editor.observeMode && !editor.snapshotMode
+    if (
+      force ||
+      garden.objects !== this.lastObjectsRef ||
+      editor.selectedObjectId !== this.lastSelectedId ||
+      editor.observeMode !== this.lastObserve ||
+      editor.snapshotMode !== this.lastSnapshot
+    ) {
+      this.objectRenderer.sync(
+        garden.objects,
+        editor.selectedObjectId,
+        showFootprints,
+      )
+      this.lastObjectsRef = garden.objects
+      this.lastSelectedId = editor.selectedObjectId
+      this.lastObserve = editor.observeMode
+      this.lastSnapshot = editor.snapshotMode
+    }
+
     this.applyCamera()
-    this.updateGhost()
+
+    if (
+      force ||
+      editor.tool !== this.lastTool ||
+      editor.selectedAssetId !== this.lastAssetId
+    ) {
+      this.updateGhost()
+      this.lastTool = editor.tool
+      this.lastAssetId = editor.selectedAssetId
+    }
   }
 
   private applyCamera(): void {
@@ -696,13 +766,18 @@ export class GardenApplication {
   }
 
   destroy(): void {
+    this.destroyed = true
     window.removeEventListener('keydown', this.boundKeyDown)
     window.removeEventListener('keyup', this.boundKeyUp)
     for (const unsub of this.unsubscribers) unsub()
+    this.unsubscribers = []
     this.terrainRenderer.destroy()
     this.objectRenderer.destroy()
     this.wildlife.destroy()
-    this.app?.destroy(true, { children: true })
-    this.app = null
+    if (this.app) {
+      this.app.destroy(true, { children: true })
+      this.app = null
+    }
+    if (this.host) this.host.replaceChildren()
   }
 }

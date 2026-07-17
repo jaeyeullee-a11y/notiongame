@@ -7,6 +7,8 @@ type Props = {
 
 export function GardenCanvas({ onReady }: Props) {
   const hostRef = useRef<HTMLDivElement>(null)
+  const onReadyRef = useRef(onReady)
+  onReadyRef.current = onReady
 
   useEffect(() => {
     const host = hostRef.current
@@ -16,14 +18,14 @@ export function GardenCanvas({ onReady }: Props) {
     let cancelled = false
 
     void app.mount(host).then(() => {
-      if (!cancelled) onReady(app)
+      if (!cancelled) onReadyRef.current(app)
     })
 
     return () => {
       cancelled = true
       app.destroy()
     }
-  }, [onReady])
+  }, [])
 
   return <div className="canvas-host" ref={hostRef} />
 }
