@@ -10,6 +10,7 @@ import { BottomToolbar } from '@/components/toolbar/BottomToolbar'
 import { SelectionToolbar } from '@/components/toolbar/SelectionToolbar'
 import type { GardenApplication } from '@/game/GardenApplication'
 import { useAutosave } from '@/hooks/useAutosave'
+import { purgeLegacyDatabase } from '@/systems/save/db'
 import { listSaveSlots, loadSlot } from '@/systems/save/repository'
 import { useAuthStore } from '@/stores/authStore'
 import { useEditorStore } from '@/stores/editorStore'
@@ -30,7 +31,9 @@ export default function App() {
   const restoredForUser = useRef<string | null>(null)
 
   useEffect(() => {
-    hydrateSession()
+    void purgeLegacyDatabase().finally(() => {
+      hydrateSession()
+    })
   }, [hydrateSession])
 
   useEffect(() => {

@@ -20,22 +20,24 @@ class StillgardenDB extends Dexie {
   saveSlots!: Table<SaveSlotRecord, [string, number]>
 
   constructor() {
-    super('stillgarden')
+    // New DB name avoids unsupported primary-key migrations from the MVP schema.
+    super('stillgarden-accounts')
     this.version(1).stores({
-      saveSlots: 'slot, garden.updatedAt',
+      users: 'usernameLower, username',
+      saveSlots: '[usernameLower+slot], usernameLower, updatedAt',
     })
-    this.version(2)
-      .stores({
-        users: 'usernameLower, username',
-        saveSlots: '[usernameLower+slot], usernameLower, updatedAt',
-      })
-      .upgrade(async (tx) => {
-        // Drop legacy unscoped slots; accounts own saves going forward.
-        await tx.table('saveSlots').clear()
-      })
   }
 }
 
 export const db = new StillgardenDB()
 
 export const SAVE_SLOT_COUNT = 6
+
+/** Best-effort cleanup of the pre-account IndexedDB database. */
+export async function purgeLegacyDatabase(): Promise<void> {
+  try {
+    await Dexie.delete('stillgarden')
+  } catch {
+    // Ignore — legacy DB may already be gone.
+  }
+}
