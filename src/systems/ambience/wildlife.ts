@@ -1,6 +1,6 @@
 import { Container, Graphics } from 'pixi.js'
 import { assetsById } from '@/lib/assets'
-import type { PlacedGardenObject } from '@/schemas/garden'
+import type { PlacedGardenObject, Season } from '@/schemas/garden'
 
 type Butterfly = {
   g: Graphics
@@ -30,12 +30,18 @@ export class WildlifeSystem {
     this.container.label = 'wildlife'
   }
 
-  update(delta: number, objects: PlacedGardenObject[]): void {
+  update(delta: number, objects: PlacedGardenObject[], season: Season): void {
     const flowers = objects.filter((o) => assetsById.get(o.assetId)?.category === 'flowers')
     const trees = objects.filter((o) => assetsById.get(o.assetId)?.category === 'trees')
     const birdBath = objects.find((o) => o.assetId === 'bird-bath')
 
-    const butterflyTarget = flowers.length >= 3 ? Math.min(2, Math.floor(flowers.length / 3) || 1) : 0
+    // Butterflies appear in spring/summer only; disabled in autumn/winter.
+    const butterfliesAllowed = season === 'spring' || season === 'summer'
+    const butterflyTarget = butterfliesAllowed
+      ? flowers.length >= 3
+        ? Math.min(2, Math.floor(flowers.length / 3) || 1)
+        : 0
+      : 0
     while (this.butterflies.length < butterflyTarget) {
       const anchor = flowers[this.butterflies.length % flowers.length]!
       this.butterflies.push(this.spawnButterfly(anchor.x, anchor.y - 40))
