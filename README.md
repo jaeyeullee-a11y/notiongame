@@ -78,6 +78,6 @@ npx netlify-cli dev
 
 - 2400×1600 temperate garden world
 - Terrain: grass, soil, stone path, pond water
-- 18 placeable assets (6 categories × 3)
+- 20 placeable assets (6 categories; trees & features include 4 each)
 - Undo/redo, autosave, 6 local slots, PNG export
 - Observe Mode, butterflies, birds, ambient audio tones

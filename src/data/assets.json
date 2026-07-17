@@ -241,6 +241,26 @@
       "tags": ["tree", "hero", "water"]
     },
     {
+      "id": "cherry-blossom",
+      "displayName": "Cherry Blossom",
+      "category": "trees",
+      "spriteUrl": "/assets/sprites/cherry-blossom.svg",
+      "thumbnailUrl": "/assets/sprites/cherry-blossom.svg",
+      "nativeWidth": 320,
+      "nativeHeight": 380,
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "footprintWidth": 120,
+      "footprintHeight": 70,
+      "defaultScale": 1,
+      "minScale": 0.75,
+      "maxScale": 1.25,
+      "canRotate": true,
+      "canFlip": true,
+      "sortOffset": 0,
+      "tags": ["tree", "spring", "blossom", "flower"]
+    },
+    {
       "id": "wooden-bench",
       "displayName": "Wooden Bench",
       "category": "features",
@@ -300,6 +320,27 @@
       "sortOffset": 0,
       "tags": ["feature", "accent"]
     },
+    {
+      "id": "fountain",
+      "displayName": "Fountain",
+      "category": "features",
+      "spriteUrl": "/assets/sprites/fountain.svg",
+      "thumbnailUrl": "/assets/sprites/fountain.svg",
+      "nativeWidth": 180,
+      "nativeHeight": 220,
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "footprintWidth": 90,
+      "footprintHeight": 65,
+      "defaultScale": 1,
+      "minScale": 0.75,
+      "maxScale": 1.25,
+      "canRotate": false,
+      "canFlip": false,
+      "sortOffset": 8,
+      "tags": ["feature", "water", "focal"]
+    },
+
     {
       "id": "wooden-footbridge",
       "displayName": "Wooden Footbridge",
