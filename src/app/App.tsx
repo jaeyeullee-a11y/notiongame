@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { GardenShareView } from '@/app/GardenShareView'
 import { GardenCanvas } from '@/components/GardenCanvas'
 import { AuthDialog } from '@/components/dialogs/AuthDialog'
 import { OnboardingDialog } from '@/components/dialogs/OnboardingDialog'
@@ -16,7 +18,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { useEditorStore } from '@/stores/editorStore'
 import { useGardenStore } from '@/stores/gardenStore'
 
-export default function App() {
+function EditorApp() {
   const [gardenApp, setGardenApp] = useState<GardenApplication | null>(null)
   const user = useAuthStore((s) => s.user)
   const hydrated = useAuthStore((s) => s.hydrated)
@@ -94,5 +96,19 @@ export default function App() {
       <SaveDialog gardenApp={gardenApp} />
       <SettingsDialog gardenApp={gardenApp} />
     </div>
+  )
+}
+
+export default function App() {
+  const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || '/'
+
+  return (
+    <BrowserRouter basename={basename === '/' ? undefined : basename}>
+      <Routes>
+        <Route path="/" element={<EditorApp />} />
+        <Route path="/garden/:shareId" element={<GardenShareView />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   )
 }

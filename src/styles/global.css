@@ -495,6 +495,109 @@ button:disabled {
     linear-gradient(160deg, #efe8d4, var(--color-parchment));
 }
 
+.share-view {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(168, 184, 137, 0.3), transparent 42%),
+    linear-gradient(160deg, #efe8d4 0%, var(--color-parchment) 50%, #ddd4b8 100%);
+}
+
+.share-view-status {
+  display: grid;
+  place-content: center;
+  gap: 12px;
+  text-align: center;
+  padding: 24px;
+}
+
+.share-view-status h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  color: var(--color-dark-foliage);
+}
+
+.share-view-status p {
+  margin: 0;
+  color: var(--color-ink-muted);
+}
+
+.share-chrome {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  pointer-events: none;
+}
+
+.share-chrome > * {
+  pointer-events: auto;
+}
+
+.share-title {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: var(--color-panel-bg);
+  border: 1px solid var(--color-panel-border);
+  backdrop-filter: blur(10px);
+  font-family: var(--font-display);
+  font-weight: 650;
+  color: var(--color-dark-foliage);
+}
+
+.share-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.share-audio-label {
+  font-size: 0.85rem;
+}
+
+.share-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.share-canvas .canvas-host {
+  width: 100%;
+  height: 100%;
+}
+
+.share-hint {
+  margin: 12px 0 0;
+  color: var(--color-ink-muted);
+  font-size: 0.85rem;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  z-index: 30;
+  min-height: 36px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(64, 91, 69, 0.92);
+  color: #fff8f2;
+  box-shadow: var(--shadow-soft);
+  animation: rise-in 180ms ease;
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
