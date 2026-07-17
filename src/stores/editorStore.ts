@@ -9,7 +9,14 @@ import type {
 import { CommandStack } from '@/systems/command/CommandStack'
 import type { GardenCommand } from '@/systems/command/types'
 
-type DialogId = 'save' | 'settings' | 'new' | 'onboarding' | 'auth' | null
+type DialogId =
+  | 'save'
+  | 'settings'
+  | 'new'
+  | 'onboarding'
+  | 'auth'
+  | 'export'
+  | null
 
 type EditorState = {
   tool: EditorTool
