@@ -13,9 +13,11 @@ async function cloudAvailable(): Promise<boolean> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'probe' }),
     })
-    // Function exists if we get a JSON API response (not SPA HTML).
+    // Function exists if we get a JSON API response (not SPA HTML / 404 page).
     const type = res.headers.get('content-type') ?? ''
-    return type.includes('application/json')
+    if (!type.includes('application/json')) return false
+    // Unknown action should still return our API error JSON (400), not a platform 404.
+    return res.status !== 404
   } catch {
     return false
   }
