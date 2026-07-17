@@ -7,7 +7,9 @@ import type {
   GardenSaveData,
   GardenSettings,
   PlacedGardenObject,
+  Season,
   TerrainCell,
+  WeatherType,
 } from '@/schemas/garden'
 import { createNewGardenSave } from '@/systems/generator/surpriseMe'
 
@@ -24,6 +26,8 @@ type GardenState = {
   generatorSeed?: number
   dirty: boolean
   activeSlot: number | null
+  season: Season
+  weather: WeatherType
 
   hydrateFromSave: (save: GardenSaveData, slot?: number | null) => void
   newGarden: (mode: 'empty' | 'surprise', name?: string) => void
@@ -40,6 +44,8 @@ type GardenState = {
   markDirty: () => void
   toSaveData: () => GardenSaveData
   tickPlayTime: (deltaSeconds: number) => void
+  setSeason: (season: Season) => void
+  setWeather: (weather: WeatherType) => void
 }
 
 const initial = createNewGardenSave('Untitled Garden', 'empty')
@@ -57,6 +63,8 @@ export const useGardenStore = create<GardenState>((set, get) => ({
   generatorSeed: undefined,
   dirty: false,
   activeSlot: 1,
+  season: initial.season,
+  weather: initial.weather,
 
   hydrateFromSave: (save, slot = null) => {
     set({
@@ -72,6 +80,8 @@ export const useGardenStore = create<GardenState>((set, get) => ({
       generatorSeed: save.metadata.generatorSeed,
       dirty: false,
       activeSlot: slot,
+      season: save.season,
+      weather: save.weather,
     })
   },
 
@@ -124,8 +134,8 @@ export const useGardenStore = create<GardenState>((set, get) => ({
 
   toSaveData: () => {
     const state = get()
-    return {
-      schemaVersion: 1 as const,
+    const saveData: GardenSaveData = {
+      schemaVersion: 2 as const,
       id: state.id || createId('garden'),
       name: state.name,
       createdAt: state.createdAt,
@@ -134,6 +144,8 @@ export const useGardenStore = create<GardenState>((set, get) => ({
       camera: state.camera,
       terrain: state.terrain,
       objects: state.objects,
+      season: state.season,
+      weather: state.weather,
       settings: state.settings,
       metadata: {
         objectCount: state.objects.length,
@@ -141,6 +153,7 @@ export const useGardenStore = create<GardenState>((set, get) => ({
         generatorSeed: state.generatorSeed,
       },
     }
+    return saveData
   },
 
   tickPlayTime: (deltaSeconds) => {
@@ -148,6 +161,9 @@ export const useGardenStore = create<GardenState>((set, get) => ({
     const state = get()
     state.playTimeSeconds += deltaSeconds
   },
+
+  setSeason: (season) => set({ season, dirty: true }),
+  setWeather: (weather) => set({ weather, dirty: true }),
 }))
 
 export function resetGardenToEmpty(): void {

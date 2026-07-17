@@ -1,12 +1,19 @@
 import { Assets, Container, Graphics, Sprite, Texture } from 'pixi.js'
 import { assetsById } from '@/lib/assets'
 import { sortObjectsByDepth } from '@/lib/depth'
-import type { PlacedGardenObject } from '@/schemas/garden'
+import type { PlacedGardenObject, Season } from '@/schemas/garden'
 
 type ObjectVisual = {
   root: Container
   sprite: Sprite
   footprint: Graphics
+}
+
+const SEASON_TINTS: Record<Season, number> = {
+  spring: 0xffffff,
+  summer: 0xe8f0d8,
+  autumn: 0xf0d890,
+  winter: 0xd8e8f0,
 }
 
 export class ObjectRenderer {
@@ -35,6 +42,7 @@ export class ObjectRenderer {
     objects: PlacedGardenObject[],
     selectedId: string | null,
     showFootprints: boolean,
+    season: Season,
   ): void {
     this.selectedId = selectedId
     const alive = new Set(objects.map((o) => o.instanceId))
@@ -53,7 +61,12 @@ export class ObjectRenderer {
         this.visuals.set(object.instanceId, visual)
         this.container.addChild(visual.root)
       }
-      this.applyTransform(visual, object, showFootprints && selectedId === object.instanceId)
+      this.applyTransform(
+        visual,
+        object,
+        showFootprints && selectedId === object.instanceId,
+        season,
+      )
     }
   }
 
@@ -110,6 +123,7 @@ export class ObjectRenderer {
     visual: ObjectVisual,
     object: PlacedGardenObject,
     showFootprint: boolean,
+    season: Season,
   ): void {
     const asset = assetsById.get(object.assetId)
     visual.root.position.set(object.x, object.y)
@@ -117,6 +131,7 @@ export class ObjectRenderer {
     visual.root.scale.set(object.flipX ? -object.scale : object.scale, object.scale)
     visual.root.zIndex = object.y + object.sortOffset
     visual.sprite.alpha = 1
+    visual.sprite.tint = SEASON_TINTS[season]
 
     visual.footprint.clear()
     if (showFootprint && asset) {

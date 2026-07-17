@@ -14,6 +14,7 @@ import type { PlacedGardenObject, TerrainCell } from '@/schemas/garden'
 import { TerrainRenderer } from '@/game/terrainRenderer'
 import { ObjectRenderer } from '@/game/objectRenderer'
 import { WildlifeSystem } from '@/systems/ambience/wildlife'
+import { WeatherSystem } from '@/systems/weather/WeatherSystem'
 import { audioManager } from '@/systems/ambience/audio'
 import {
   createClearGardenCommand,
@@ -33,6 +34,7 @@ export class GardenApplication {
   private terrainRenderer = new TerrainRenderer()
   private objectRenderer = new ObjectRenderer()
   private wildlife = new WildlifeSystem()
+  private weather = new WeatherSystem()
   private worldBounds = new Graphics()
   private brushPreview = new Graphics()
   private viewport = { width: 1200, height: 800 }
@@ -62,6 +64,7 @@ export class GardenApplication {
   private lastSnapshot = false
   private lastTool = ''
   private lastAssetId: string | null = null
+  private lastSeason: string | null = null
   private playTimeAccumulator = 0
 
   constructor() {
@@ -97,6 +100,7 @@ export class GardenApplication {
       this.brushPreview,
     )
     app.stage.addChild(this.world)
+    app.stage.addChild(this.weather.container)
     app.stage.eventMode = 'static'
     app.stage.hitArea = new Rectangle(0, 0, this.viewport.width, this.viewport.height)
 
@@ -113,7 +117,9 @@ export class GardenApplication {
         if (
           state.terrain !== prev.terrain ||
           state.objects !== prev.objects ||
-          state.camera !== prev.camera
+          state.camera !== prev.camera ||
+          state.season !== prev.season ||
+          state.weather !== prev.weather
         ) {
           this.syncFromStores()
         }
@@ -136,11 +142,18 @@ export class GardenApplication {
     app.ticker.add((ticker) => {
       if (this.destroyed || !this.app) return
       const delta = ticker.deltaMS / 1000
-      this.terrainRenderer.update(delta, useGardenStore.getState().terrain)
-      this.wildlife.update(delta, useGardenStore.getState().objects)
+      const gardenState = useGardenStore.getState()
+      this.terrainRenderer.update(delta, gardenState.terrain, gardenState.season)
+      this.wildlife.update(delta, gardenState.objects, gardenState.season)
+      this.weather.update(
+        delta,
+        gardenState.weather,
+        this.viewport.width,
+        this.viewport.height,
+      )
       this.playTimeAccumulator += delta
       if (this.playTimeAccumulator >= 1) {
-        useGardenStore.getState().tickPlayTime(this.playTimeAccumulator)
+        gardenState.tickPlayTime(this.playTimeAccumulator)
         this.playTimeAccumulator = 0
       }
     })
@@ -182,8 +195,8 @@ export class GardenApplication {
     const garden = useGardenStore.getState()
     const editor = useEditorStore.getState()
 
-    if (force || garden.terrain !== this.lastTerrainRef) {
-      this.terrainRenderer.render(garden.terrain)
+    if (force || garden.terrain !== this.lastTerrainRef || garden.season !== this.lastSeason) {
+      this.terrainRenderer.render(garden.terrain, garden.season)
       this.lastTerrainRef = garden.terrain
     }
 
@@ -191,6 +204,7 @@ export class GardenApplication {
     if (
       force ||
       garden.objects !== this.lastObjectsRef ||
+      garden.season !== this.lastSeason ||
       editor.selectedObjectId !== this.lastSelectedId ||
       editor.observeMode !== this.lastObserve ||
       editor.snapshotMode !== this.lastSnapshot
@@ -199,12 +213,14 @@ export class GardenApplication {
         garden.objects,
         editor.selectedObjectId,
         showFootprints,
+        garden.season,
       )
       this.lastObjectsRef = garden.objects
       this.lastSelectedId = editor.selectedObjectId
       this.lastObserve = editor.observeMode
       this.lastSnapshot = editor.snapshotMode
     }
+    this.lastSeason = garden.season
 
     this.applyCamera()
 
@@ -550,6 +566,17 @@ export class GardenApplication {
       useEditorStore.getState().setObserveMode(!editor.observeMode)
     }
 
+    const seasonByKey: Record<string, 'spring' | 'summer' | 'autumn' | 'winter'> = {
+      '1': 'spring',
+      '2': 'summer',
+      '3': 'autumn',
+      '4': 'winter',
+    }
+    const season = seasonByKey[event.key]
+    if (season) {
+      useGardenStore.getState().setSeason(season)
+    }
+
     if (mod && event.key.toLowerCase() === 'z') {
       event.preventDefault()
       if (event.shiftKey) {
@@ -774,6 +801,7 @@ export class GardenApplication {
     this.terrainRenderer.destroy()
     this.objectRenderer.destroy()
     this.wildlife.destroy()
+    this.weather.destroy()
     if (this.app) {
       this.app.destroy(true, { children: true })
       this.app = null

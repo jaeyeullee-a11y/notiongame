@@ -195,7 +195,7 @@ export function createNewGardenSave(
       : { terrain: createEmptyTerrain('grass'), objects: [], seed: undefined }
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     id: createId('garden'),
     name,
     createdAt: now,
@@ -204,6 +204,8 @@ export function createNewGardenSave(
     camera: defaultCamera(),
     terrain: generated.terrain,
     objects: generated.objects,
+    season: 'spring',
+    weather: 'clear',
     settings: {
       musicEnabled: true,
       ambienceEnabled: true,

@@ -42,6 +42,8 @@ export const PlacedGardenObjectSchema = z.object({
 })
 
 export const TerrainTypeIdSchema = z.enum(['grass', 'soil', 'stone', 'water'])
+export const SeasonSchema = z.enum(['spring', 'summer', 'autumn', 'winter'])
+export const WeatherTypeSchema = z.enum(['clear', 'rain', 'snow'])
 
 export const TerrainCellSchema = z.object({
   x: z.number().int().nonnegative(),
@@ -51,7 +53,7 @@ export const TerrainCellSchema = z.object({
 })
 
 export const GardenSaveDataSchema = z.object({
-  schemaVersion: z.literal(1),
+  schemaVersion: z.union([z.literal(1), z.literal(2)]),
   id: z.string(),
   name: z.string(),
   createdAt: z.string(),
@@ -67,6 +69,8 @@ export const GardenSaveDataSchema = z.object({
   }),
   terrain: z.array(TerrainCellSchema),
   objects: z.array(PlacedGardenObjectSchema),
+  season: SeasonSchema.default('spring'),
+  weather: WeatherTypeSchema.default('clear'),
   settings: z.object({
     musicEnabled: z.boolean(),
     ambienceEnabled: z.boolean(),
@@ -84,6 +88,8 @@ export type AssetCategory = z.infer<typeof AssetCategorySchema>
 export type GardenAssetDefinition = z.infer<typeof GardenAssetDefinitionSchema>
 export type PlacedGardenObject = z.infer<typeof PlacedGardenObjectSchema>
 export type TerrainTypeId = z.infer<typeof TerrainTypeIdSchema>
+export type Season = z.infer<typeof SeasonSchema>
+export type WeatherType = z.infer<typeof WeatherTypeSchema>
 export type TerrainCell = z.infer<typeof TerrainCellSchema>
 export type GardenSaveData = z.infer<typeof GardenSaveDataSchema>
 

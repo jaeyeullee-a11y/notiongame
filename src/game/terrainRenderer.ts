@@ -1,13 +1,33 @@
 import { Container, Graphics } from 'pixi.js'
 import theme from '@/data/theme.json'
 import terrainData from '@/data/terrain.json'
-import type { TerrainCell, TerrainTypeId } from '@/schemas/garden'
+import type { Season, TerrainCell, TerrainTypeId } from '@/schemas/garden'
 
-const COLORS: Record<TerrainTypeId, { base: string; alt: string }> = {
-  grass: { base: '#789267', alt: '#6F8A5C' },
-  soil: { base: '#8A6951', alt: '#7A5B45' },
-  stone: { base: '#AAA698', alt: '#9C978A' },
-  water: { base: '#739BA2', alt: '#668E96' },
+const SEASON_COLORS: Record<Season, Record<TerrainTypeId, { base: string; alt: string }>> = {
+  spring: {
+    grass: { base: '#7EAA6B', alt: '#709E5C' },
+    soil: { base: '#8A6951', alt: '#7A5B45' },
+    stone: { base: '#AAA698', alt: '#9C978A' },
+    water: { base: '#6BAAB2', alt: '#5E9EA6' },
+  },
+  summer: {
+    grass: { base: '#517A3B', alt: '#456D30' },
+    soil: { base: '#7A5B45', alt: '#6A4D39' },
+    stone: { base: '#AAA698', alt: '#9C978A' },
+    water: { base: '#5B9BA2', alt: '#508E96' },
+  },
+  autumn: {
+    grass: { base: '#A67B3A', alt: '#9A6F2E' },
+    soil: { base: '#8A5A3A', alt: '#7A4E2E' },
+    stone: { base: '#B0A898', alt: '#A49C8A' },
+    water: { base: '#6FA0A8', alt: '#62949C' },
+  },
+  winter: {
+    grass: { base: '#C8D4C0', alt: '#BBC9B3' },
+    soil: { base: '#9A9080', alt: '#8C8374' },
+    stone: { base: '#C4C0B4', alt: '#B8B4A8' },
+    water: { base: '#A8C8D0', alt: '#9CBBCC' },
+  },
 }
 
 export class TerrainRenderer {
@@ -22,10 +42,11 @@ export class TerrainRenderer {
     this.container.label = 'terrain'
   }
 
-  render(terrain: TerrainCell[]): void {
+  render(terrain: TerrainCell[], season: Season): void {
     const { tileSize, cols, rows } = theme.world
     this.tiles.clear()
     this.edges.clear()
+    const colorsByType = SEASON_COLORS[season]
 
     const grid: TerrainTypeId[][] = Array.from({ length: rows }, () =>
       Array.from({ length: cols }, () => 'grass' as TerrainTypeId),
@@ -44,7 +65,7 @@ export class TerrainRenderer {
     for (let y = 0; y < rows; y += 1) {
       for (let x = 0; x < cols; x += 1) {
         const type = grid[y]![x]!
-        const colors = COLORS[type]
+        const colors = colorsByType[type]
         const color = variations[y]![x] === 0 ? colors.base : colors.alt
         this.tiles.rect(x * tileSize, y * tileSize, tileSize, tileSize)
         this.tiles.fill({ color })
@@ -87,7 +108,7 @@ export class TerrainRenderer {
           if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) continue
           const other = grid[ny]![nx]!
           if (other === type) continue
-          const color = COLORS[type].base
+          const color = colorsByType[type].base
           if (dx === 1) {
             this.edges.rect((x + 1) * tileSize - 8, y * tileSize, 8, tileSize)
           } else if (dx === -1) {
@@ -106,7 +127,7 @@ export class TerrainRenderer {
     this.drawWaterRipples(grid, 0)
   }
 
-  update(deltaSeconds: number, terrain: TerrainCell[]): void {
+  update(deltaSeconds: number, terrain: TerrainCell[], _season: Season): void {
     this.ripplePhase += deltaSeconds * 0.6
     const { cols, rows } = theme.world
     const grid: TerrainTypeId[][] = Array.from({ length: rows }, () =>
