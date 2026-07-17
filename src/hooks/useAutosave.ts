@@ -2,10 +2,12 @@ import { useEffect, useRef } from 'react'
 import theme from '@/data/theme.json'
 import { audioManager } from '@/systems/ambience/audio'
 import { saveSlot } from '@/systems/save/repository'
+import { useAuthStore } from '@/stores/authStore'
 import { useGardenStore } from '@/stores/gardenStore'
 import type { GardenApplication } from '@/game/GardenApplication'
 
 export function useAutosave(gardenApp: GardenApplication | null): void {
+  const user = useAuthStore((s) => s.user)
   const dirty = useGardenStore((s) => s.dirty)
   const activeSlot = useGardenStore((s) => s.activeSlot)
   const timerRef = useRef<number | null>(null)
@@ -13,7 +15,8 @@ export function useAutosave(gardenApp: GardenApplication | null): void {
   useEffect(() => {
     const persist = async () => {
       const state = useGardenStore.getState()
-      if (!state.dirty || !state.activeSlot) return
+      const username = useAuthStore.getState().user?.username
+      if (!username || !state.dirty || !state.activeSlot) return
       try {
         const thumbnail = await gardenApp?.captureThumbnail()
         await saveSlot(state.activeSlot, state.toSaveData(), thumbnail)
@@ -23,7 +26,7 @@ export function useAutosave(gardenApp: GardenApplication | null): void {
       }
     }
 
-    if (!dirty) return
+    if (!dirty || !user) return
 
     if (timerRef.current) window.clearTimeout(timerRef.current)
     timerRef.current = window.setTimeout(() => {
@@ -33,12 +36,13 @@ export function useAutosave(gardenApp: GardenApplication | null): void {
     return () => {
       if (timerRef.current) window.clearTimeout(timerRef.current)
     }
-  }, [dirty, activeSlot, gardenApp])
+  }, [dirty, activeSlot, gardenApp, user])
 
   useEffect(() => {
     const onBlur = () => {
       const state = useGardenStore.getState()
-      if (!state.dirty || !state.activeSlot) return
+      const username = useAuthStore.getState().user?.username
+      if (!username || !state.dirty || !state.activeSlot) return
       void (async () => {
         const thumbnail = await gardenApp?.captureThumbnail()
         await saveSlot(state.activeSlot!, state.toSaveData(), thumbnail)

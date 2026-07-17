@@ -23,6 +23,14 @@ npm run build
 npm test
 ```
 
+## Accounts
+
+- First screen: **로그인 / 회원가입**
+- Username only (min 3 chars, uniqueness check, no password)
+- Save/Load slots are scoped per account
+- On Netlify: accounts & saves sync via Functions + Blobs
+- Local `npm run dev`: IndexedDB fallback (browser-local accounts)
+
 ## Deploy
 
 ### Netlify (recommended)
@@ -30,6 +38,12 @@ npm test
 ```bash
 npm run build
 npx netlify-cli deploy --dir=dist --prod
+```
+
+Local full-stack (functions included):
+
+```bash
+npx netlify-cli dev
 ```
 
 ### GitHub Pages

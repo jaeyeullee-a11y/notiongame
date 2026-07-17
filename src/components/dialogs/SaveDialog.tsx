@@ -6,6 +6,7 @@ import {
   saveSlot,
   type SaveSlotSummary,
 } from '@/systems/save/repository'
+import { useAuthStore } from '@/stores/authStore'
 import { useEditorStore } from '@/stores/editorStore'
 import { useGardenStore } from '@/stores/gardenStore'
 import type { GardenApplication } from '@/game/GardenApplication'
@@ -15,6 +16,7 @@ type Props = {
 }
 
 export function SaveDialog({ gardenApp }: Props) {
+  const user = useAuthStore((s) => s.user)
   const dialog = useEditorStore((s) => s.dialog)
   const setDialog = useEditorStore((s) => s.setDialog)
   const clearHistory = useEditorStore((s) => s.clearHistory)
@@ -27,11 +29,15 @@ export function SaveDialog({ gardenApp }: Props) {
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
-    if (dialog !== 'save') return
-    void listSaveSlots().then(setSlots)
-  }, [dialog])
+    if (dialog !== 'save' || !user) return
+    void listSaveSlots()
+      .then(setSlots)
+      .catch((err: unknown) => {
+        setError(err instanceof Error ? err.message : '세이브 목록을 불러오지 못했습니다.')
+      })
+  }, [dialog, user])
 
-  if (dialog !== 'save') return null
+  if (dialog !== 'save' || !user) return null
 
   const refresh = async () => setSlots(await listSaveSlots())
 
@@ -76,7 +82,10 @@ export function SaveDialog({ gardenApp }: Props) {
     <div className="dialog-backdrop">
       <div className="dialog">
         <h3>Save & Load</h3>
-        <p>Six local slots. Autosave writes to the active slot after a short pause.</p>
+        <p>
+          <strong>{user.username}</strong> 계정의 슬롯 6개입니다. 자동저장은 활성
+          슬롯에 잠시 후 기록됩니다.
+        </p>
         <div className="save-slots">
           {slots.map((slot) => (
             <div key={slot.slot} className="save-slot">
@@ -100,7 +109,11 @@ export function SaveDialog({ gardenApp }: Props) {
                 )}
               </div>
               <div className="tool-group">
-                <button className="btn btn-primary" disabled={busy} onClick={() => void onSave(slot.slot)}>
+                <button
+                  className="btn btn-primary"
+                  disabled={busy}
+                  onClick={() => void onSave(slot.slot)}
+                >
                   Save
                 </button>
                 <button

@@ -9,7 +9,7 @@ import type {
 import { CommandStack } from '@/systems/command/CommandStack'
 import type { GardenCommand } from '@/systems/command/types'
 
-type DialogId = 'save' | 'settings' | 'new' | 'onboarding' | null
+type DialogId = 'save' | 'settings' | 'new' | 'onboarding' | 'auth' | null
 
 type EditorState = {
   tool: EditorTool
@@ -67,7 +67,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   observeMode: false,
   observeUiHidden: false,
   snapshotMode: false,
-  dialog: 'onboarding',
+  dialog: null,
   canUndo: false,
   canRedo: false,
   statusMessage: null,
