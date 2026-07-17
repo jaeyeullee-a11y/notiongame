@@ -50,8 +50,14 @@ export const TerrainCellSchema = z.object({
   variation: z.number().int().nonnegative(),
 })
 
+export const SeasonSchema = z.enum(['spring', 'summer', 'autumn', 'winter'])
+export type Season = z.infer<typeof SeasonSchema>
+
+export const WeatherTypeSchema = z.enum(['clear', 'rain', 'snow'])
+export type WeatherType = z.infer<typeof WeatherTypeSchema>
+
 export const GardenSaveDataSchema = z.object({
-  schemaVersion: z.literal(1),
+  schemaVersion: z.union([z.literal(1), z.literal(2)]),
   id: z.string(),
   name: z.string(),
   createdAt: z.string(),
@@ -78,6 +84,8 @@ export const GardenSaveDataSchema = z.object({
     playTimeSeconds: z.number().nonnegative(),
     generatorSeed: z.number().optional(),
   }),
+  season: SeasonSchema.default('spring'),
+  weather: WeatherTypeSchema.default('clear'),
 })
 
 export type AssetCategory = z.infer<typeof AssetCategorySchema>
