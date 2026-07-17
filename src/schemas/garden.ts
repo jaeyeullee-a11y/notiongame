@@ -72,6 +72,7 @@ export const GardenSaveDataSchema = z.object({
     ambienceEnabled: z.boolean(),
     musicVolume: z.number().min(0).max(1),
     ambienceVolume: z.number().min(0).max(1),
+    timeOfDay: z.enum(['day', 'night']).optional().default('day'),
   }),
   metadata: z.object({
     objectCount: z.number().int().nonnegative(),
