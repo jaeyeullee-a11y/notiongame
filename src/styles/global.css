@@ -439,6 +439,46 @@ button:disabled {
   margin-top: 16px;
 }
 
+.export-options {
+  border: 0;
+  margin: 0 0 8px;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.export-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-panel-border);
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--color-ink);
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.export-option:has(input:checked) {
+  border-color: var(--color-accent, #b66d4f);
+  background: rgba(182, 109, 79, 0.08);
+}
+
+.export-option-hint {
+  color: var(--color-ink-muted);
+  font-weight: 400;
+}
+
+.export-status {
+  margin: 8px 0 0;
+  color: var(--color-ink-muted);
+}
+
+.export-error {
+  margin: 8px 0 0;
+  color: #9b4a3c;
+}
+
 .save-slots {
   display: grid;
   gap: 8px;

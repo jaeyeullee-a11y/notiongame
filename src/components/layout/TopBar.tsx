@@ -1,12 +1,7 @@
 import { useAuthStore } from '@/stores/authStore'
 import { useEditorStore } from '@/stores/editorStore'
 import { useGardenStore } from '@/stores/gardenStore'
-import type { GardenApplication } from '@/game/GardenApplication'
 import type { Season, WeatherType } from '@/schemas/garden'
-
-type Props = {
-  gardenApp: GardenApplication | null
-}
 
 const SEASONS: Array<{ id: Season; label: string }> = [
   { id: 'spring', label: '봄' },
@@ -21,7 +16,7 @@ const WEATHER_OPTIONS: Array<{ id: WeatherType; label: string }> = [
   { id: 'snow', label: '눈' },
 ]
 
-export function TopBar({ gardenApp }: Props) {
+export function TopBar() {
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
   const name = useGardenStore((s) => s.name)
@@ -128,7 +123,7 @@ export function TopBar({ gardenApp }: Props) {
         <button
           className="btn btn-primary"
           disabled={!user}
-          onClick={() => void gardenApp?.exportPng()}
+          onClick={() => setDialog('export')}
           title="Export PNG snapshot"
         >
           Snapshot
