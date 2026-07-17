@@ -196,6 +196,20 @@ const assets = [
     `,
   },
   {
+    id: 'candle-lantern',
+    w: 70,
+    h: 130,
+    body: `
+      <ellipse cx="35" cy="122" rx="14" ry="5" fill="#3a4f3c" opacity="0.22"/>
+      <rect x="28" y="78" width="14" height="40" rx="2" fill="#6e5240"/>
+      <path d="M20 78 H50 L46 48 H24 Z" fill="#8a6951"/>
+      <rect x="26" y="52" width="18" height="22" rx="2" fill="#e8c27a" opacity="0.9"/>
+      <ellipse cx="35" cy="60" rx="4" ry="7" fill="#f3d07a"/>
+      <path d="M35 48 V40" stroke="#6e5240" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="35" cy="38" r="3" fill="#6e5240"/>
+    `,
+  },
+  {
     id: 'wooden-footbridge',
     w: 320,
     h: 160,
@@ -231,6 +245,20 @@ const assets = [
       <rect x="256" y="140" width="14" height="120" fill="#8a6951"/>
       <rect x="155" y="140" width="14" height="120" fill="#9a785e"/>
       <rect x="90" y="200" width="160" height="12" fill="#aaa698" opacity="0.7"/>
+    `,
+  },
+  {
+    id: 'street-light',
+    w: 90,
+    h: 280,
+    body: `
+      <ellipse cx="45" cy="268" rx="18" ry="7" fill="#3a4f3c" opacity="0.22"/>
+      <rect x="30" y="250" width="30" height="12" rx="3" fill="#6e5240"/>
+      <rect x="41" y="90" width="8" height="160" fill="#7a7a72"/>
+      <path d="M45 95 Q70 70 78 48" stroke="#7a7a72" stroke-width="7" fill="none" stroke-linecap="round"/>
+      <rect x="66" y="34" width="22" height="28" rx="4" fill="#8a6951"/>
+      <rect x="70" y="40" width="14" height="16" rx="2" fill="#e8c27a" opacity="0.9"/>
+      <circle cx="77" cy="48" r="3" fill="#f3d07a"/>
     `,
   },
 ]

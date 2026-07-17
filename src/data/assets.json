@@ -318,7 +318,27 @@
       "canRotate": true,
       "canFlip": true,
       "sortOffset": 0,
-      "tags": ["feature", "accent"]
+      "tags": ["feature", "accent", "light", "luminous"]
+    },
+    {
+      "id": "candle-lantern",
+      "displayName": "Candle Lantern",
+      "category": "features",
+      "spriteUrl": "/assets/sprites/candle-lantern.svg",
+      "thumbnailUrl": "/assets/sprites/candle-lantern.svg",
+      "nativeWidth": 70,
+      "nativeHeight": 130,
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "footprintWidth": 30,
+      "footprintHeight": 26,
+      "defaultScale": 1,
+      "minScale": 0.75,
+      "maxScale": 1.25,
+      "canRotate": false,
+      "canFlip": true,
+      "sortOffset": 0,
+      "tags": ["feature", "light", "luminous", "small"]
     },
     {
       "id": "fountain",
@@ -399,6 +419,26 @@
       "canFlip": true,
       "sortOffset": 0,
       "tags": ["structure", "hero"]
+    },
+    {
+      "id": "street-light",
+      "displayName": "Street Light",
+      "category": "structures",
+      "spriteUrl": "/assets/sprites/street-light.svg",
+      "thumbnailUrl": "/assets/sprites/street-light.svg",
+      "nativeWidth": 90,
+      "nativeHeight": 280,
+      "anchorX": 0.5,
+      "anchorY": 1,
+      "footprintWidth": 36,
+      "footprintHeight": 32,
+      "defaultScale": 1,
+      "minScale": 0.75,
+      "maxScale": 1.2,
+      "canRotate": false,
+      "canFlip": true,
+      "sortOffset": 4,
+      "tags": ["structure", "light", "luminous", "tall"]
     }
   ]
 }
