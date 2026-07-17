@@ -15,6 +15,7 @@ import { TerrainRenderer } from '@/game/terrainRenderer'
 import { ObjectRenderer } from '@/game/objectRenderer'
 import { WildlifeSystem } from '@/systems/ambience/wildlife'
 import { audioManager } from '@/systems/ambience/audio'
+import { NightOverlaySystem } from '@/systems/lighting/NightOverlaySystem'
 import {
   createClearGardenCommand,
   createDeleteObjectCommand,
@@ -33,6 +34,7 @@ export class GardenApplication {
   private terrainRenderer = new TerrainRenderer()
   private objectRenderer = new ObjectRenderer()
   private wildlife = new WildlifeSystem()
+  private nightOverlay = new NightOverlaySystem()
   private worldBounds = new Graphics()
   private brushPreview = new Graphics()
   private viewport = { width: 1200, height: 800 }
@@ -62,6 +64,7 @@ export class GardenApplication {
   private lastSnapshot = false
   private lastTool = ''
   private lastAssetId: string | null = null
+  private lastTimeOfDay: 'day' | 'night' | null = null
   private playTimeAccumulator = 0
 
   constructor() {
@@ -94,6 +97,7 @@ export class GardenApplication {
       this.terrainRenderer.container,
       this.objectRenderer.container,
       this.wildlife.container,
+      this.nightOverlay.overlay,
       this.brushPreview,
     )
     app.stage.addChild(this.world)
@@ -113,7 +117,8 @@ export class GardenApplication {
         if (
           state.terrain !== prev.terrain ||
           state.objects !== prev.objects ||
-          state.camera !== prev.camera
+          state.camera !== prev.camera ||
+          state.settings.timeOfDay !== prev.settings.timeOfDay
         ) {
           this.syncFromStores()
         }
@@ -138,6 +143,7 @@ export class GardenApplication {
       const delta = ticker.deltaMS / 1000
       this.terrainRenderer.update(delta, useGardenStore.getState().terrain)
       this.wildlife.update(delta, useGardenStore.getState().objects)
+      this.nightOverlay.update(delta)
       this.playTimeAccumulator += delta
       if (this.playTimeAccumulator >= 1) {
         useGardenStore.getState().tickPlayTime(this.playTimeAccumulator)
@@ -187,24 +193,34 @@ export class GardenApplication {
       this.lastTerrainRef = garden.terrain
     }
 
+    const timeOfDay = garden.settings.timeOfDay ?? 'day'
+    const timeOfDayChanged = force || timeOfDay !== this.lastTimeOfDay
+    if (timeOfDayChanged) {
+      this.nightOverlay.setTimeOfDay(timeOfDay)
+    }
+
     const showFootprints = !editor.observeMode && !editor.snapshotMode
     if (
       force ||
       garden.objects !== this.lastObjectsRef ||
       editor.selectedObjectId !== this.lastSelectedId ||
       editor.observeMode !== this.lastObserve ||
-      editor.snapshotMode !== this.lastSnapshot
+      editor.snapshotMode !== this.lastSnapshot ||
+      timeOfDayChanged
     ) {
       this.objectRenderer.sync(
         garden.objects,
         editor.selectedObjectId,
         showFootprints,
+        timeOfDay,
       )
       this.lastObjectsRef = garden.objects
       this.lastSelectedId = editor.selectedObjectId
       this.lastObserve = editor.observeMode
       this.lastSnapshot = editor.snapshotMode
     }
+
+    this.lastTimeOfDay = timeOfDay
 
     this.applyCamera()
 
@@ -581,6 +597,13 @@ export class GardenApplication {
     if (event.key === ']') this.nudgeLayer(8)
     if (event.key === '=' || event.key === '+') this.scaleSelected(0.05)
     if (event.key === '-' || event.key === '_') this.scaleSelected(-0.05)
+
+    if (event.key.toLowerCase() === 'n' && !mod) {
+      const current = useGardenStore.getState().settings.timeOfDay ?? 'day'
+      useGardenStore.getState().setSettings({
+        timeOfDay: current === 'day' ? 'night' : 'day',
+      })
+    }
   }
 
   private onKeyUp(event: KeyboardEvent): void {
@@ -774,6 +797,7 @@ export class GardenApplication {
     this.terrainRenderer.destroy()
     this.objectRenderer.destroy()
     this.wildlife.destroy()
+    this.nightOverlay.destroy()
     if (this.app) {
       this.app.destroy(true, { children: true })
       this.app = null

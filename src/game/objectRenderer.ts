@@ -1,4 +1,4 @@
-import { Assets, Container, Graphics, Sprite, Texture } from 'pixi.js'
+import { Assets, Container, FillGradient, Graphics, Sprite, Texture } from 'pixi.js'
 import { assetsById } from '@/lib/assets'
 import { sortObjectsByDepth } from '@/lib/depth'
 import type { PlacedGardenObject } from '@/schemas/garden'
@@ -7,6 +7,7 @@ type ObjectVisual = {
   root: Container
   sprite: Sprite
   footprint: Graphics
+  glow?: Graphics
 }
 
 export class ObjectRenderer {
@@ -15,6 +16,7 @@ export class ObjectRenderer {
   private textures = new Map<string, Texture>()
   private selectedId: string | null = null
   private ghost: ObjectVisual | null = null
+  private timeOfDay: 'day' | 'night' = 'day'
 
   constructor() {
     this.container.label = 'objects'
@@ -35,8 +37,10 @@ export class ObjectRenderer {
     objects: PlacedGardenObject[],
     selectedId: string | null,
     showFootprints: boolean,
+    timeOfDay: 'day' | 'night' = 'day',
   ): void {
     this.selectedId = selectedId
+    this.timeOfDay = timeOfDay
     const alive = new Set(objects.map((o) => o.instanceId))
 
     for (const [id, visual] of this.visuals) {
@@ -53,7 +57,11 @@ export class ObjectRenderer {
         this.visuals.set(object.instanceId, visual)
         this.container.addChild(visual.root)
       }
-      this.applyTransform(visual, object, showFootprints && selectedId === object.instanceId)
+      this.applyTransform(
+        visual,
+        object,
+        showFootprints && selectedId === object.instanceId,
+      )
     }
   }
 
@@ -73,6 +81,7 @@ export class ObjectRenderer {
       this.ghost = this.createVisual(assetId)
       this.ghost.root.label = `ghost:${assetId}`
       this.ghost.sprite.alpha = 0.55
+      if (this.ghost.glow) this.ghost.glow.alpha = 0
       this.container.addChild(this.ghost.root)
     }
 
@@ -102,8 +111,38 @@ export class ObjectRenderer {
       sprite.height = asset?.nativeHeight ?? 80
     }
 
+    let glow: Graphics | undefined
+    if (asset?.tags.includes('luminous')) {
+      glow = this.createGlowGraphics()
+      root.addChild(glow)
+    }
+
     root.addChild(footprint, sprite)
-    return { root, sprite, footprint }
+    return { root, sprite, footprint, glow }
+  }
+
+  private createGlowGraphics(): Graphics {
+    const glow = new Graphics()
+    const radius = 100
+    const gradient = new FillGradient({
+      type: 'radial',
+      center: { x: 0.5, y: 0.5 },
+      innerRadius: 0,
+      outerCenter: { x: 0.5, y: 0.5 },
+      outerRadius: 0.5,
+      colorStops: [
+        { offset: 0, color: 'rgba(255, 200, 80, 0.45)' },
+        { offset: 0.45, color: 'rgba(255, 200, 80, 0.22)' },
+        { offset: 1, color: 'rgba(255, 200, 80, 0)' },
+      ],
+      textureSpace: 'local',
+    })
+    // Soft golden radial glow centered slightly above the footprint
+    glow.circle(0, -40, radius).fill(gradient)
+    glow.alpha = 0
+    glow.eventMode = 'none'
+    glow.label = 'glow'
+    return glow
   }
 
   private applyTransform(
@@ -117,6 +156,10 @@ export class ObjectRenderer {
     visual.root.scale.set(object.flipX ? -object.scale : object.scale, object.scale)
     visual.root.zIndex = object.y + object.sortOffset
     visual.sprite.alpha = 1
+
+    if (visual.glow) {
+      visual.glow.alpha = this.timeOfDay === 'night' ? 1 : 0
+    }
 
     visual.footprint.clear()
     if (showFootprint && asset) {
