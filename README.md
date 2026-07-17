@@ -4,14 +4,14 @@
 
 ## Tech Stack
 
-| Layer | Choice |
-|-------|--------|
-| Runtime | Node.js 20+ |
-| Bundler | Vite 8 |
-| Language | TypeScript (strict) |
-| Game engine | Phaser 4 |
-| Quality | ESLint, Prettier, Vitest |
-| CI | GitHub Actions |
+| Layer       | Choice                   |
+| ----------- | ------------------------ |
+| Runtime     | Node.js 20+              |
+| Bundler     | Vite 8                   |
+| Language    | TypeScript (strict)      |
+| Game engine | Phaser 4                 |
+| Quality     | ESLint, Prettier, Vitest |
+| CI          | GitHub Actions           |
 
 ## Quick Start
 
@@ -35,15 +35,16 @@ npm run dev
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Vite 개발 서버 |
-| `npm run build` | 타입체크 + 프로덕션 빌드 |
-| `npm run preview` | 빌드 결과 미리보기 |
-| `npm run lint` | ESLint |
-| `npm run format` | Prettier 포맷 |
-| `npm run typecheck` | `tsc --noEmit` |
-| `npm test` | Vitest 단위 테스트 |
+| Command                | Description              |
+| ---------------------- | ------------------------ |
+| `npm run dev`          | Vite 개발 서버           |
+| `npm run build`        | 타입체크 + 프로덕션 빌드 |
+| `npm run preview`      | 빌드 결과 미리보기       |
+| `npm run lint`         | ESLint                   |
+| `npm run format`       | Prettier 포맷            |
+| `npm run format:check` | Prettier 검사            |
+| `npm run typecheck`    | `tsc --noEmit`           |
+| `npm test`             | Vitest 단위 테스트       |
 
 ## Project Structure
 
@@ -64,11 +65,11 @@ src/
 
 ## Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `VITE_APP_TITLE` | `Runway Defense` | 앱 타이틀 |
-| `VITE_ENABLE_VOC_SUBMIT` | `true` | VOC 제출 |
-| `VITE_ENABLE_PLAY_LOG` | `true` | 플레이 로그 |
+| Variable                 | Default          | Description |
+| ------------------------ | ---------------- | ----------- |
+| `VITE_APP_TITLE`         | `Runway Defense` | 앱 타이틀   |
+| `VITE_ENABLE_VOC_SUBMIT` | `true`           | VOC 제출    |
+| `VITE_ENABLE_PLAY_LOG`   | `true`           | 플레이 로그 |
 
 `.env` 는 git에 커밋되지 않습니다.
 
