@@ -1,5 +1,5 @@
-import { getStore } from '@netlify/blobs'
 import type { Context } from '@netlify/functions'
+import { accountStore, readJson, writeJson } from './_store.mts'
 
 type UserRecord = {
   username: string
@@ -51,38 +51,51 @@ export default async (req: Request, _context: Context) => {
     return json(400, { error: '잘못된 요청입니다.' })
   }
 
+  if (payload.action === 'probe') {
+    return json(400, { error: '아이디를 입력해 주세요.' })
+  }
+
   const validationError = validateUsername(payload.username)
   if (validationError) return json(400, { error: validationError })
 
   const username = payload.username!.trim()
   const usernameLower = username.toLowerCase()
-  const users = getStore('stillgarden-users')
 
-  if (payload.action === 'signup') {
-    const existing = await users.get(usernameLower, { type: 'json' })
-    if (existing) {
-      return json(409, { error: '이미 사용 중인 아이디입니다.' })
+  try {
+    const users = accountStore('stillgarden-users')
+
+    if (payload.action === 'signup') {
+      const existing = await readJson<UserRecord>(users, usernameLower)
+      if (existing) {
+        return json(409, { error: '이미 사용 중인 아이디입니다.' })
+      }
+      const record: UserRecord = {
+        username,
+        usernameLower,
+        createdAt: new Date().toISOString(),
+      }
+      await writeJson(users, usernameLower, record)
+      return json(201, {
+        user: { username: record.username, createdAt: record.createdAt },
+      })
     }
-    const record: UserRecord = {
-      username,
-      usernameLower,
-      createdAt: new Date().toISOString(),
+
+    if (payload.action === 'login') {
+      const existing = await readJson<UserRecord>(users, usernameLower)
+      if (!existing) {
+        return json(404, {
+          error: '존재하지 않는 아이디입니다. 먼저 회원가입해 주세요.',
+        })
+      }
+      return json(200, {
+        user: { username: existing.username, createdAt: existing.createdAt },
+      })
     }
-    await users.setJSON(usernameLower, record)
-    return json(201, { user: { username: record.username, createdAt: record.createdAt } })
+
+    return json(400, { error: '지원하지 않는 요청입니다.' })
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : '계정 저장소 오류가 발생했습니다.'
+    return json(500, { error: message })
   }
-
-  if (payload.action === 'login') {
-    const existing = (await users.get(usernameLower, { type: 'json' })) as
-      | UserRecord
-      | null
-    if (!existing) {
-      return json(404, { error: '존재하지 않는 아이디입니다. 먼저 회원가입해 주세요.' })
-    }
-    return json(200, {
-      user: { username: existing.username, createdAt: existing.createdAt },
-    })
-  }
-
-  return json(400, { error: '지원하지 않는 요청입니다.' })
 }
