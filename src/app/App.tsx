@@ -31,7 +31,7 @@ export default function App() {
       <TopBar gardenApp={gardenApp} />
       <div className={`workspace ${assetPanelCollapsed ? 'collapsed' : ''}`}>
         <AssetLibrary />
-        <div style={{ position: 'relative', minWidth: 0, minHeight: 0 }}>
+        <div className="canvas-pane">
           <GardenCanvas onReady={onReady} />
           <SelectionToolbar gardenApp={gardenApp} />
         </div>
