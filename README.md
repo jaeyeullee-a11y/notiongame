@@ -23,6 +23,23 @@ npm run build
 npm test
 ```
 
+## Deploy
+
+### Netlify (recommended)
+
+```bash
+npm run build
+npx netlify-cli deploy --dir=dist --prod
+```
+
+### GitHub Pages
+
+1. Merge to `main`.
+2. In the repo: **Settings → Pages → Source → GitHub Actions**.
+3. The workflow `.github/workflows/deploy-pages.yml` publishes to  
+   `https://<user>.github.io/notiongame/`.
+
+
 ## Controls
 
 | Input | Action |
