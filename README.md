@@ -2,7 +2,7 @@
 
 A calm 2D garden-decorating sandbox for desktop web.
 
-Paint terrain, place 18 garden assets, arrange the scene, observe ambient life, and export a PNG — all offline, with local save slots.
+Paint terrain, place 20 garden assets, arrange the scene, observe ambient life, and export a PNG — all offline, with local save slots.
 
 ## Stack
 
@@ -78,6 +78,6 @@ npx netlify-cli dev
 
 - 2400×1600 temperate garden world
 - Terrain: grass, soil, stone path, pond water
-- 18 placeable assets (6 categories × 3)
+- 20 placeable assets (6 categories; trees & features expanded)
 - Undo/redo, autosave, 6 local slots, PNG export
 - Observe Mode, butterflies, birds, ambient audio tones

@@ -162,6 +162,11 @@ export function generateSurpriseGarden(seed = Date.now()): {
         placeObject('bird-bath', 600 + rand() * 1200, 500 + rand() * 700, rand),
       )
     }
+    if (rand() > 0.6) {
+      objects.push(
+        placeObject('fountain', 500 + rand() * 1400, 500 + rand() * 700, rand),
+      )
+    }
 
     // Keep objects in world bounds
     for (const object of objects) {
