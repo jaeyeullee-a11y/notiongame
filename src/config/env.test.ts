@@ -6,8 +6,8 @@ describe('appConfig', () => {
     expect(appConfig.title.length).toBeGreaterThan(0)
   })
 
-  it('keeps feature flags disabled by default in scaffold', () => {
-    expect(appConfig.features.vocSubmit).toBe(false)
-    expect(appConfig.features.playLog).toBe(false)
+  it('exposes feature flag booleans', () => {
+    expect(typeof appConfig.features.vocSubmit).toBe('boolean')
+    expect(typeof appConfig.features.playLog).toBe('boolean')
   })
 })

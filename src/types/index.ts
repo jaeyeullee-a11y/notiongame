@@ -1,6 +1,5 @@
 /**
  * Shared domain types for Runway Defense.
- * Game systems will consume these once gameplay is implemented.
  */
 
 export type TowerId = 'developer' | 'designer' | 'pm' | 'sales' | 'ai_agent' | 'founder'
@@ -8,6 +7,8 @@ export type TowerId = 'developer' | 'designer' | 'pm' | 'sales' | 'ai_agent' | '
 export type EnemyId = 'bug' | 'urgent_request' | 'scope_creep' | 'churn_risk' | 'enterprise_client'
 
 export type GameResult = 'won' | 'lost' | 'abandoned'
+
+export type PlayPhase = 'ready' | 'combat' | 'paused' | 'won' | 'lost'
 
 export type PlayEventType =
   | 'GameStarted'
@@ -33,4 +34,25 @@ export interface SessionMeta {
   playTimeMs: number
   finalScore: number
   towersPlacedByType: Partial<Record<TowerId, number>>
+  enemiesDefeated: number
+  enemiesLeaked: number
+  mostUsedTower?: TowerId
+}
+
+export interface PlayEvent {
+  type: PlayEventType
+  sessionId: string
+  at: number
+  wave: number
+  budget: number
+  runway: number
+  payload?: Record<string, unknown>
+}
+
+export interface VocSubmission {
+  sessionId: string
+  text: string
+  tags: string[]
+  submittedAt: number
+  meta: SessionMeta
 }
