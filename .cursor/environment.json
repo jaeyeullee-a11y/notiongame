@@ -1,0 +1,7 @@
+{
+  "name": "notiongame",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "install": "bash .cursor/scripts/update-deps.sh"
+}
