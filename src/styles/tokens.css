@@ -17,7 +17,10 @@
   --font-body: "Source Sans 3", "Segoe UI", sans-serif;
   --top-bar-height: 52px;
   --bottom-bar-height: 48px;
+  --bottom-bar-height-mobile: 60px;
   --asset-panel-width: 280px;
   --asset-panel-collapsed: 56px;
+  --asset-sheet-height: 60vh;
+  --touch-target: 44px;
   --radius: 10px;
 }
