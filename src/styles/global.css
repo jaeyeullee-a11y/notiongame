@@ -347,6 +347,7 @@ button:disabled {
   display: block;
   width: 100%;
   height: 100%;
+  touch-action: none;
 }
 
 .bottom-bar {
@@ -391,6 +392,8 @@ button:disabled {
   bottom: 18px;
   transform: translateX(-50%);
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 6px;
   padding: 8px;
   border-radius: 12px;
@@ -398,6 +401,47 @@ button:disabled {
   border: 1px solid var(--color-panel-border);
   box-shadow: var(--shadow-soft);
   z-index: 4;
+  max-width: calc(100% - 16px);
+}
+
+.selection-btn {
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+}
+
+.library-toggle-mobile {
+  display: none;
+}
+
+.asset-sheet-handle {
+  display: none;
+}
+
+.asset-panel-backdrop {
+  display: none;
+}
+
+.touch-hint {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--bottom-bar-height) + 16px);
+  transform: translateX(-50%);
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--color-panel-bg);
+  border: 1px solid var(--color-panel-border);
+  box-shadow: var(--shadow-soft);
+  animation: rise-in 220ms ease;
+}
+
+.touch-hint p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-ink-muted);
 }
 
 .dialog-backdrop {
@@ -612,12 +656,148 @@ button:disabled {
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 900px) and (min-width: 769px) {
   .workspace {
     grid-template-columns: 56px 1fr;
   }
 
   .asset-panel .panel-body {
     display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-shell {
+    grid-template-rows: var(--top-bar-height) 1fr var(--bottom-bar-height-mobile);
+  }
+
+  .top-bar {
+    gap: 8px;
+    padding: 0 10px;
+    overflow-x: auto;
+  }
+
+  .brand {
+    font-size: 1.15rem;
+    margin-right: 0;
+  }
+
+  .garden-name-input {
+    min-width: 120px;
+    flex: 1;
+  }
+
+  .top-actions {
+    gap: 6px;
+  }
+
+  .top-actions .btn,
+  .season-btn {
+    min-width: var(--touch-target);
+    min-height: var(--touch-target);
+  }
+
+  .workspace,
+  .workspace.collapsed {
+    grid-template-columns: 1fr;
+  }
+
+  .asset-panel-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(47, 52, 44, 0.28);
+    z-index: 9;
+    animation: fade-in 160ms ease;
+  }
+
+  .asset-panel {
+    display: none;
+  }
+
+  .asset-panel.mobile-sheet {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--asset-sheet-height);
+    max-height: calc(100% - var(--top-bar-height));
+    border-right: none;
+    border-top: 1px solid var(--color-panel-border);
+    border-radius: 16px 16px 0 0;
+    z-index: 10;
+    animation: rise-in 220ms ease;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .asset-panel.mobile-sheet .panel-body {
+    display: flex;
+  }
+
+  .asset-sheet-handle {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0 0;
+  }
+
+  .asset-sheet-handle span {
+    width: 40px;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(92, 99, 86, 0.35);
+  }
+
+  .asset-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .asset-card {
+    min-width: var(--touch-target);
+    min-height: var(--touch-target);
+    padding: 8px 6px;
+  }
+
+  .bottom-bar {
+    gap: 6px;
+    padding: 0 8px;
+    overflow-x: auto;
+    min-height: var(--bottom-bar-height-mobile);
+  }
+
+  .tool-btn {
+    min-width: var(--touch-target);
+    min-height: var(--touch-target);
+    padding: 0 12px;
+    font-size: 0.8rem;
+  }
+
+  .library-toggle-mobile {
+    display: inline-flex;
+  }
+
+  .selection-toolbar {
+    bottom: 10px;
+    gap: 4px;
+    padding: 6px;
+  }
+
+  .selection-toolbar .selection-btn,
+  .selection-toolbar .btn {
+    min-width: var(--touch-target);
+    min-height: var(--touch-target);
+    padding: 0 10px;
+    font-size: 0.78rem;
+  }
+
+  .status-text {
+    white-space: nowrap;
+  }
+
+  .touch-hint {
+    bottom: calc(var(--bottom-bar-height-mobile) + 12px);
+    width: calc(100% - 24px);
+    max-width: 360px;
+    justify-content: space-between;
   }
 }
