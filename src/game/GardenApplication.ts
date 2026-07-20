@@ -1,7 +1,18 @@
-import { Application, Container, Graphics, Rectangle } from 'pixi.js'
+import {
+  Application,
+  Container,
+  Graphics,
+  Matrix,
+  Rectangle,
+  RenderTexture,
+} from 'pixi.js'
 import theme from '@/data/theme.json'
 import { assetsById } from '@/lib/assets'
 import { clampCamera, screenToWorld } from '@/lib/camera'
+import {
+  buildExportFilename,
+  type ExportMultiplier,
+} from '@/lib/exportPng'
 import { hitTestObjects } from '@/lib/hitTest'
 import { createId } from '@/lib/ids'
 import {
@@ -761,7 +772,7 @@ export class GardenApplication {
     useEditorStore.getState().setSelectedObjectId(null)
   }
 
-  async exportPng(): Promise<void> {
+  async exportPng(multiplier: ExportMultiplier = 1): Promise<void> {
     if (!this.app) return
     const editor = useEditorStore.getState()
     useEditorStore.getState().setSnapshotMode(true)
@@ -772,19 +783,51 @@ export class GardenApplication {
 
     await new Promise((r) => requestAnimationFrame(() => r(null)))
 
-    const url = await this.app.renderer.extract.base64({
-      target: this.app.stage,
-      format: 'png',
-    })
+    let url: string
+    try {
+      if (multiplier === 1) {
+        url = await this.app.renderer.extract.base64({
+          target: this.app.stage,
+          format: 'png',
+        })
+      } else {
+        const { width, height } = this.viewport
+        const rt = RenderTexture.create({
+          width: width * multiplier,
+          height: height * multiplier,
+        })
+        try {
+          const transform = new Matrix().scale(multiplier, multiplier)
+          this.app.renderer.render({
+            container: this.app.stage,
+            target: rt,
+            transform,
+          })
+          url = await this.app.renderer.extract.base64({
+            target: rt,
+            format: 'png',
+          })
+        } finally {
+          rt.destroy()
+        }
+      }
 
-    const link = document.createElement('a')
-    link.download = `${useGardenStore.getState().name.replace(/\s+/g, '-').toLowerCase() || 'stillgarden'}.png`
-    link.href = url
-    link.click()
-
-    useEditorStore.getState().setSnapshotMode(false)
-    useEditorStore.getState().setObserveMode(editor.observeMode)
-    audioManager.play('snapshot')
+      const link = document.createElement('a')
+      link.download = buildExportFilename(
+        useGardenStore.getState().name,
+        multiplier,
+      )
+      link.href = url
+      link.click()
+      audioManager.play('snapshot')
+    } catch (error) {
+      throw error instanceof Error
+        ? error
+        : new Error('PNG 내보내기에 실패했습니다. 더 낮은 해상도로 다시 시도해 주세요.')
+    } finally {
+      useEditorStore.getState().setSnapshotMode(false)
+      useEditorStore.getState().setObserveMode(editor.observeMode)
+    }
   }
 
   async captureThumbnail(): Promise<string | undefined> {
