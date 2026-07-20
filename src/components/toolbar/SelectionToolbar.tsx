@@ -21,42 +21,60 @@ export function SelectionToolbar({ gardenApp }: Props) {
   return (
     <div className="selection-toolbar">
       <button
-        className="btn"
+        className="btn selection-btn"
         onClick={() => gardenApp.rotateSelected(-15)}
         disabled={!asset?.canRotate}
       >
         Rotate L
       </button>
       <button
-        className="btn"
+        className="btn selection-btn"
         onClick={() => gardenApp.rotateSelected(15)}
         disabled={!asset?.canRotate}
       >
         Rotate R
       </button>
       <button
-        className="btn"
+        className="btn selection-btn"
         onClick={() => gardenApp.flipSelected()}
         disabled={!asset?.canFlip}
       >
         Flip
       </button>
-      <button className="btn" onClick={() => gardenApp.scaleSelected(-0.05)}>
+      <button
+        className="btn selection-btn"
+        onClick={() => gardenApp.scaleSelected(-0.05)}
+      >
         Smaller
       </button>
-      <button className="btn" onClick={() => gardenApp.scaleSelected(0.05)}>
+      <button
+        className="btn selection-btn"
+        onClick={() => gardenApp.scaleSelected(0.05)}
+      >
         Larger
       </button>
-      <button className="btn" onClick={() => gardenApp.nudgeLayer(-8)}>
+      <button
+        className="btn selection-btn"
+        onClick={() => gardenApp.nudgeLayer(-8)}
+      >
         Back
       </button>
-      <button className="btn" onClick={() => gardenApp.nudgeLayer(8)}>
+      <button
+        className="btn selection-btn"
+        onClick={() => gardenApp.nudgeLayer(8)}
+      >
         Forward
       </button>
-      <button className="btn" onClick={() => gardenApp.duplicateSelected()}>
+      <button
+        className="btn selection-btn"
+        onClick={() => gardenApp.duplicateSelected()}
+      >
         Duplicate
       </button>
-      <button className="btn" onClick={() => gardenApp.deleteSelected()}>
+      <button
+        className="btn selection-btn"
+        onClick={() => gardenApp.deleteSelected()}
+      >
         Delete
       </button>
     </div>

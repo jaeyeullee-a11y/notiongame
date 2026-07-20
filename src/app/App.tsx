@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { GardenCanvas } from '@/components/GardenCanvas'
+import { TouchHint } from '@/components/TouchHint'
 import { AuthDialog } from '@/components/dialogs/AuthDialog'
 import { ExportDialog } from '@/components/dialogs/ExportDialog'
 import { OnboardingDialog } from '@/components/dialogs/OnboardingDialog'
@@ -11,6 +12,7 @@ import { BottomToolbar } from '@/components/toolbar/BottomToolbar'
 import { SelectionToolbar } from '@/components/toolbar/SelectionToolbar'
 import type { GardenApplication } from '@/game/GardenApplication'
 import { useAutosave } from '@/hooks/useAutosave'
+import { MOBILE_MAX_WIDTH_QUERY } from '@/hooks/useMediaQuery'
 import { purgeLegacyDatabase } from '@/systems/save/db'
 import { listSaveSlots, loadSlot } from '@/systems/save/repository'
 import { useAuthStore } from '@/stores/authStore'
@@ -36,6 +38,21 @@ export default function App() {
       hydrateSession()
     })
   }, [hydrateSession])
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return
+    }
+    const media = window.matchMedia(MOBILE_MAX_WIDTH_QUERY)
+    const syncCollapsed = () => {
+      if (media.matches) {
+        useEditorStore.getState().setAssetPanelCollapsed(true)
+      }
+    }
+    syncCollapsed()
+    media.addEventListener('change', syncCollapsed)
+    return () => media.removeEventListener('change', syncCollapsed)
+  }, [])
 
   useEffect(() => {
     if (!hydrated) return
@@ -87,6 +104,7 @@ export default function App() {
             <div className="canvas-placeholder" />
           )}
           <SelectionToolbar gardenApp={gardenApp} />
+          {!hideChrome && <TouchHint />}
         </div>
       </div>
       <BottomToolbar />
