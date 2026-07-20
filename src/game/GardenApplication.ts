@@ -16,6 +16,13 @@ import {
 import { hitTestObjects } from '@/lib/hitTest'
 import { createId } from '@/lib/ids'
 import {
+  LongPressDetector,
+  computePinchCamera,
+  getTouchDistance,
+  getTouchMidpoint,
+  type TouchPoint,
+} from '@/lib/touchGestures'
+import {
   applyTerrainPaint,
   createEmptyTerrain,
   getBrushCells,
@@ -66,8 +73,23 @@ export class GardenApplication {
   private unsubscribers: Array<() => void> = []
   private boundKeyDown: (e: KeyboardEvent) => void
   private boundKeyUp: (e: KeyboardEvent) => void
+  private boundTouchStart: (e: TouchEvent) => void
+  private boundTouchMove: (e: TouchEvent) => void
+  private boundTouchEnd: (e: TouchEvent) => void
+  private touchCanvas: HTMLCanvasElement | null = null
   private host: HTMLElement | null = null
   private destroyed = false
+  private activeTouches = new Map<number, TouchPoint>()
+  private pinchStartDist = 0
+  private pinchStartCamera: { x: number; y: number; zoom: number } | null = null
+  private pinchStartMid: TouchPoint | null = null
+  private gestureActive = false
+  private longPress = new LongPressDetector()
+  private pendingTouchPlace: {
+    assetId: string
+    x: number
+    y: number
+  } | null = null
   private lastTerrainRef: TerrainCell[] | null = null
   private lastObjectsRef: PlacedGardenObject[] | null = null
   private lastSelectedId: string | null = null
@@ -81,6 +103,9 @@ export class GardenApplication {
   constructor() {
     this.boundKeyDown = (e) => this.onKeyDown(e)
     this.boundKeyUp = (e) => this.onKeyUp(e)
+    this.boundTouchStart = (e) => this.onTouchStart(e)
+    this.boundTouchMove = (e) => this.onTouchMove(e)
+    this.boundTouchEnd = (e) => this.onTouchEnd(e)
   }
 
   async mount(host: HTMLElement): Promise<void> {
@@ -285,6 +310,160 @@ export class GardenApplication {
       { passive: false },
     )
     app.canvas.addEventListener('contextmenu', (e) => e.preventDefault())
+    this.bindTouchGestures(app.canvas)
+  }
+
+  private bindTouchGestures(canvas: HTMLCanvasElement): void {
+    this.touchCanvas = canvas
+    canvas.addEventListener('touchstart', this.boundTouchStart, {
+      passive: false,
+    })
+    canvas.addEventListener('touchmove', this.boundTouchMove, {
+      passive: false,
+    })
+    canvas.addEventListener('touchend', this.boundTouchEnd, { passive: false })
+    canvas.addEventListener('touchcancel', this.boundTouchEnd, {
+      passive: false,
+    })
+  }
+
+  private unbindTouchGestures(): void {
+    if (!this.touchCanvas) return
+    this.touchCanvas.removeEventListener('touchstart', this.boundTouchStart)
+    this.touchCanvas.removeEventListener('touchmove', this.boundTouchMove)
+    this.touchCanvas.removeEventListener('touchend', this.boundTouchEnd)
+    this.touchCanvas.removeEventListener('touchcancel', this.boundTouchEnd)
+    this.touchCanvas = null
+  }
+
+  private getCanvasTouchPoint(touch: Touch): TouchPoint {
+    const canvas = this.touchCanvas
+    if (!canvas) return { x: touch.clientX, y: touch.clientY }
+    const rect = canvas.getBoundingClientRect()
+    return {
+      x: touch.clientX - rect.left,
+      y: touch.clientY - rect.top,
+    }
+  }
+
+  private syncActiveTouches(event: TouchEvent): void {
+    this.activeTouches.clear()
+    for (let i = 0; i < event.touches.length; i += 1) {
+      const touch = event.touches.item(i)
+      if (!touch) continue
+      this.activeTouches.set(touch.identifier, this.getCanvasTouchPoint(touch))
+    }
+  }
+
+  private beginPinchGesture(): void {
+    const points = [...this.activeTouches.values()]
+    if (points.length < 2) return
+    const [a, b] = points
+    const camera = useGardenStore.getState().camera
+    this.pinchStartDist = getTouchDistance(a, b)
+    this.pinchStartCamera = { ...camera }
+    this.pinchStartMid = getTouchMidpoint(a, b)
+    this.gestureActive = true
+    this.cancelActiveSingleTouchEdit()
+  }
+
+  private cancelActiveSingleTouchEdit(): void {
+    this.cancelLongPress()
+    this.pendingTouchPlace = null
+    if (this.painting && this.paintStartTerrain) {
+      useGardenStore.getState().replaceTerrain(this.paintStartTerrain)
+    }
+    this.painting = false
+    this.paintStartTerrain = null
+    this.lastPaintCell = null
+    this.draggingObject = false
+    this.dragStart = null
+    this.panning = false
+  }
+
+  private onTouchStart(event: TouchEvent): void {
+    if (event.touches.length >= 2) {
+      event.preventDefault()
+    }
+    this.syncActiveTouches(event)
+    if (this.activeTouches.size >= 2) {
+      this.beginPinchGesture()
+    }
+  }
+
+  private onTouchMove(event: TouchEvent): void {
+    this.syncActiveTouches(event)
+    if (this.activeTouches.size >= 2) {
+      event.preventDefault()
+      if (!this.gestureActive || !this.pinchStartCamera || !this.pinchStartMid) {
+        this.beginPinchGesture()
+      }
+      const points = [...this.activeTouches.values()]
+      const [a, b] = points
+      if (!a || !b || !this.pinchStartCamera || !this.pinchStartMid) return
+      const next = computePinchCamera({
+        startCamera: this.pinchStartCamera,
+        startDistance: this.pinchStartDist,
+        startMidpoint: this.pinchStartMid,
+        currentDistance: getTouchDistance(a, b),
+        currentMidpoint: getTouchMidpoint(a, b),
+        viewportWidth: this.viewport.width,
+        viewportHeight: this.viewport.height,
+      })
+      useGardenStore.getState().setCamera(next)
+      this.applyCamera()
+      return
+    }
+
+    if (this.gestureActive && this.activeTouches.size < 2) {
+      this.endPinchGesture()
+    }
+  }
+
+  private onTouchEnd(event: TouchEvent): void {
+    this.syncActiveTouches(event)
+    if (this.activeTouches.size >= 2) {
+      event.preventDefault()
+      this.beginPinchGesture()
+      return
+    }
+    if (this.gestureActive) {
+      event.preventDefault()
+      this.endPinchGesture()
+    }
+  }
+
+  private endPinchGesture(): void {
+    this.gestureActive = false
+    this.pinchStartDist = 0
+    this.pinchStartCamera = null
+    this.pinchStartMid = null
+  }
+
+  private startLongPress(screenX: number, screenY: number): void {
+    this.longPress.start({ x: screenX, y: screenY }, () => {
+      const world = this.getWorldPoint(screenX, screenY)
+      this.onLongPress(world.x, world.y)
+    })
+  }
+
+  private cancelLongPress(): void {
+    this.longPress.cancel()
+  }
+
+  private onLongPress(_worldX: number, _worldY: number): void {
+    const editor = useEditorStore.getState()
+    this.pendingTouchPlace = null
+    if (editor.tool === 'place') {
+      useEditorStore.getState().setTool('select')
+      useEditorStore.getState().setStatusMessage('Select mode')
+      return
+    }
+    useEditorStore.getState().setSelectedObjectId(null)
+  }
+
+  private isTouchPointer(event: { pointerType?: string }): boolean {
+    return event.pointerType === 'touch'
   }
 
   private getWorldPoint(globalX: number, globalY: number) {
@@ -295,15 +474,18 @@ export class GardenApplication {
   private onPointerDown(event: {
     global: { x: number; y: number }
     button: number
+    pointerType?: string
     ctrlKey?: boolean
     metaKey?: boolean
   }): void {
     audioManager.unlock()
     const editor = useEditorStore.getState()
     if (editor.snapshotMode) return
+    if (this.gestureActive) return
 
     const world = this.getWorldPoint(event.global.x, event.global.y)
     this.lastPointer = { x: event.global.x, y: event.global.y }
+    const isTouch = this.isTouchPointer(event)
 
     if (event.button === 1 || this.spaceDown || editor.tool === 'pan') {
       this.panning = true
@@ -322,6 +504,10 @@ export class GardenApplication {
       return
     }
 
+    if (isTouch) {
+      this.startLongPress(event.global.x, event.global.y)
+    }
+
     if (editor.tool === 'terrain') {
       this.painting = true
       this.paintStartTerrain = useGardenStore
@@ -334,6 +520,15 @@ export class GardenApplication {
     }
 
     if (editor.tool === 'place' && editor.selectedAssetId) {
+      if (isTouch) {
+        // Defer placement until tap ends so long-press can exit Place mode.
+        this.pendingTouchPlace = {
+          assetId: editor.selectedAssetId,
+          x: world.x,
+          y: world.y,
+        }
+        return
+      }
       this.placeObject(editor.selectedAssetId, world.x, world.y)
       return
     }
@@ -377,6 +572,8 @@ export class GardenApplication {
   }
 
   private onPointerMove(event: { global: { x: number; y: number } }): void {
+    if (this.gestureActive) return
+
     const editor = useEditorStore.getState()
     if (editor.observeMode && editor.observeUiHidden) {
       useEditorStore.getState().setObserveUiHidden(false)
@@ -386,6 +583,16 @@ export class GardenApplication {
     const dx = event.global.x - this.lastPointer.x
     const dy = event.global.y - this.lastPointer.y
     this.lastPointer = { x: event.global.x, y: event.global.y }
+
+    this.longPress.move({ x: event.global.x, y: event.global.y })
+
+    if (this.pendingTouchPlace) {
+      this.pendingTouchPlace = {
+        ...this.pendingTouchPlace,
+        x: world.x,
+        y: world.y,
+      }
+    }
 
     if (this.panning) {
       const camera = useGardenStore.getState().camera
@@ -424,6 +631,27 @@ export class GardenApplication {
   }
 
   private onPointerUp(_event: { global: { x: number; y: number } }): void {
+    if (this.gestureActive) {
+      this.cancelLongPress()
+      this.pendingTouchPlace = null
+      return
+    }
+
+    if (
+      this.pendingTouchPlace &&
+      !this.longPress.didFire() &&
+      useEditorStore.getState().tool === 'place'
+    ) {
+      this.placeObject(
+        this.pendingTouchPlace.assetId,
+        this.pendingTouchPlace.x,
+        this.pendingTouchPlace.y,
+      )
+    }
+    this.pendingTouchPlace = null
+    this.cancelLongPress()
+    this.longPress.resetFired()
+
     if (this.painting && this.paintStartTerrain) {
       const next = useGardenStore.getState().terrain
       useEditorStore.getState().pushExecutedCommand(
@@ -844,6 +1072,8 @@ export class GardenApplication {
 
   destroy(): void {
     this.destroyed = true
+    this.cancelLongPress()
+    this.unbindTouchGestures()
     window.removeEventListener('keydown', this.boundKeyDown)
     window.removeEventListener('keyup', this.boundKeyUp)
     for (const unsub of this.unsubscribers) unsub()
