@@ -106,6 +106,13 @@ export function TopBar() {
         <button className="btn" disabled={!user} onClick={() => setDialog('save')}>
           Save
         </button>
+        <a
+          className="btn"
+          href={`${import.meta.env.BASE_URL}gallery`}
+          title="공개 갤러리"
+        >
+          Gallery
+        </a>
         <button
           className={`btn ${observeMode ? 'active' : ''}`}
           disabled={!user}
