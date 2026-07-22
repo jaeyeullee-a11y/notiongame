@@ -1,7 +1,16 @@
 import { getStore } from '@netlify/blobs'
 
+export type BlobStoreName =
+  | 'stillgarden-users'
+  | 'stillgarden-saves'
+  | 'stillgarden-shares'
+  | 'stillgarden-gallery-index'
+  | 'stillgarden-gallery-likes'
+  | 'stillgarden-gallery-counts'
+  | 'stillgarden-gallery-thumbs'
+
 /** Site-wide blob store with strong read-after-write consistency. */
-export function accountStore(name: 'stillgarden-users' | 'stillgarden-saves') {
+export function accountStore(name: BlobStoreName) {
   return getStore({
     name,
     consistency: 'strong',
@@ -30,4 +39,11 @@ export async function writeJson(
       '저장소 쓰기에 실패했습니다. Netlify Blobs 설정을 확인해 주세요.',
     )
   }
+}
+
+export async function deleteKey(
+  store: ReturnType<typeof getStore>,
+  key: string,
+): Promise<void> {
+  await store.delete(key)
 }
