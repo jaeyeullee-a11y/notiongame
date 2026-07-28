@@ -19,7 +19,17 @@ export function SettingsDialog({ gardenApp }: Props) {
     const next = { ...settings, ...patch }
     setSettings(patch)
     audioManager.unlock()
-    audioManager.applySettings(next)
+    // Keep master mute authoritative while muted; restore uses garden settings later.
+    const masterMuted = useEditorStore.getState().masterMuted
+    if (masterMuted) {
+      audioManager.applySettings({
+        ...next,
+        musicEnabled: false,
+        ambienceEnabled: false,
+      })
+    } else {
+      audioManager.applySettings(next)
+    }
   }
 
   return (
