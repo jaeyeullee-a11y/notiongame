@@ -33,6 +33,11 @@ export function TopBar() {
   const setObserveMode = useEditorStore((s) => s.setObserveMode)
   const setDialog = useEditorStore((s) => s.setDialog)
   const clearHistory = useEditorStore((s) => s.clearHistory)
+  const masterMuted = useEditorStore((s) => s.masterMuted)
+  const toggleMasterMute = useEditorStore((s) => s.toggleMasterMute)
+  const settings = useGardenStore((s) => s.settings)
+  const isSilent =
+    masterMuted || (!settings.musicEnabled && !settings.ambienceEnabled)
 
   const onLogout = () => {
     logout()
@@ -113,6 +118,16 @@ export function TopBar() {
           title="Toggle Observe Mode (Tab)"
         >
           {observeMode ? 'Edit' : 'Observe'}
+        </button>
+        <button
+          className="btn"
+          disabled={!user}
+          onClick={toggleMasterMute}
+          aria-label={isSilent ? '사운드 켜기' : '사운드 끄기'}
+          aria-pressed={isSilent}
+          title={isSilent ? '사운드 켜기 (M)' : '사운드 끄기 (M)'}
+        >
+          {isSilent ? '🔇' : '🔊'}
         </button>
         <button className="btn" disabled={!user} onClick={() => setDialog('settings')}>
           Settings
