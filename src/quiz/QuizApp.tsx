@@ -3,7 +3,7 @@ import { CardMatch } from '@/quiz/components/CardMatch'
 import { DragBins, DragOrder } from '@/quiz/components/DragPlay'
 import { MultipleChoice } from '@/quiz/components/MultipleChoice'
 import { parts, questionsForStage } from '@/quiz/data'
-import { scoreMany } from '@/quiz/scoring'
+import { scoreMany, scoreQuestion } from '@/quiz/scoring'
 import { useQuizStore } from '@/quiz/store'
 import type { Part, Question, QuestionResponse } from '@/quiz/types'
 import '@/quiz/quiz.css'
@@ -137,6 +137,13 @@ export default function QuizApp() {
               revealed={revealed}
               onChange={(placement) => setDraft({ type: 'drag-bins', placement })}
             />
+          ) : null}
+          {revealed && question ? (
+            <p className="score-banner" role="status">
+              이번 문항 점수{' '}
+              {scoreQuestion(question, draft ?? responses[question.id]).earned} /{' '}
+              {scoreQuestion(question, draft ?? responses[question.id]).max}
+            </p>
           ) : null}
           <div className="quiz-actions">
             <button type="button" className="ghost" onClick={() => setPlay(null)}>
