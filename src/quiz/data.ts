@@ -1,0 +1,932 @@
+import type { Part, Question } from '@/quiz/types'
+
+export const quizImages = {
+  sdlcTraditional: 'quiz/01_sdlc_traditional.png',
+  sdlcAi: 'quiz/02_sdlc_ai.png',
+  sdlcContrasts: 'quiz/03_sdlc_contrasts.png',
+  context: 'quiz/04_context_engineering.png',
+  capabilityMap: 'quiz/05_capability_map.png',
+  githubTwoWays: 'quiz/06_github_two_ways.png',
+  githubPr: 'quiz/07_github_pr_diff.png',
+  matrix: 'quiz/08_workflow_matrix.png',
+  asisTobe: 'quiz/09_asis_tobe.png',
+  acme: 'quiz/10_acme_reference.png',
+} as const
+
+export function quizAsset(path: string): string {
+  const base = import.meta.env.BASE_URL
+  return `${base}${path}`.replace(/([^:]\/)\/+/g, '$1')
+}
+
+export const questions: Question[] = [
+  {
+    id: 'p1-mcq-1',
+    type: 'mcq',
+    difficulty: 'easy',
+    prompt: 'James가 Google 화이트페이퍼의 “industry-standard vocabulary”로 제시한 전통 SDLC 6단계는 무엇인가요?',
+    choices: [
+      { id: 'a', text: 'Discovery → Requirements → Design → Implementation → Testing → Deploy' },
+      { id: 'b', text: 'Requirements → Design → Implementation → Testing → Review & Deploy → Maintenance' },
+      { id: 'c', text: 'Ideate → Spec → Code → QA → Ship → Retro' },
+      { id: 'd', text: 'Requirements → Implementation → Testing → Design → Review & Deploy → Maintenance' },
+    ],
+    answerId: 'b',
+    explain:
+      '슬라이드의 여섯 칸은 Requirements → Design → Implementation → Testing → Review & Deploy → Maintenance입니다. Discovery와 production feedback는 James가 앞뒤에 더한 단계입니다.',
+    image: quizImages.sdlcTraditional,
+  },
+  {
+    id: 'p1-mcq-2',
+    type: 'mcq',
+    difficulty: 'easy',
+    prompt: '전통 SDLC에서 시간이 가장 길게 잡히며, 슬라이드에서 라임색으로 강조된 단계는?',
+    choices: [
+      { id: 'a', text: 'Requirements' },
+      { id: 'b', text: 'Testing' },
+      { id: 'c', text: 'Implementation' },
+      { id: 'd', text: 'Maintenance' },
+    ],
+    answerId: 'c',
+    explain:
+      'Implementation이 1–3주로 지배적이고, 나머지 단계는 며칠 단위입니다. 그 비율이 누구를 채용하고 누가 희소한지를 결정했다고 슬라이드는 말합니다.',
+    image: quizImages.sdlcTraditional,
+  },
+  {
+    id: 'p1-mcq-3',
+    type: 'mcq',
+    difficulty: 'easy',
+    prompt: '전통 Iterative SDLC의 스프린트 사이클 길이는 슬라이드에서 어떻게 표현되나요?',
+    choices: [
+      { id: 'a', text: 'Sprint cycle: minutes to hours' },
+      { id: 'b', text: 'Sprint cycle: weeks' },
+      { id: 'c', text: 'Sprint cycle: months' },
+      { id: 'd', text: 'Sprint cycle: continuous, no loop' },
+    ],
+    answerId: 'b',
+    explain: '전통 쪽 점선 루프는 “Sprint cycle: weeks”, AI 쪽은 “Iteration cycle: minutes to hours”입니다.',
+    image: quizImages.sdlcAi,
+  },
+  {
+    id: 'p1-mcq-4',
+    type: 'mcq',
+    difficulty: 'medium',
+    prompt: 'AI-driven SDLC에서 “the new bottleneck”으로 적힌 것은?',
+    choices: [
+      { id: 'a', text: 'Implementation 속도' },
+      { id: 'b', text: 'Cloud 비용' },
+      { id: 'c', text: 'Specification quality (Requirements)' },
+      { id: 'd', text: 'Maintenance 인력' },
+    ],
+    answerId: 'c',
+    explain:
+      '구현이 분~시간으로 줄어들면 병목은 명세 품질로 이동합니다. Requirements와 Design은 여전히 human-paced입니다.',
+    image: quizImages.sdlcAi,
+  },
+  {
+    id: 'p1-mcq-5',
+    type: 'mcq',
+    difficulty: 'medium',
+    prompt: 'AI-driven 흐름에서 Design에서 Implementation으로 이어지는 화살표의 의미는?',
+    choices: [
+      { id: 'a', text: '디자인이 끝나면 사람이 코드를 직접 작성한다' },
+      { id: 'b', text: 'Specs become eval criteria' },
+      { id: 'c', text: '테스트 케이스를 전부 삭제한다' },
+      { id: 'd', text: 'Maintenance를 건너뛴다' },
+    ],
+    answerId: 'b',
+    explain:
+      '요구사항·설계로 만든 명세가 에이전트가 빌드하고 평가할 기준이 됩니다. James는 이를 “what good looks like”라고 했습니다.',
+    image: quizImages.sdlcAi,
+  },
+  {
+    id: 'p1-mcq-6',
+    type: 'mcq',
+    difficulty: 'medium',
+    prompt: '대비 표의 한 줄 요약 “Implementation collapses, and Testing becomes Evaluation.”이 가리키는 변화는?',
+    choices: [
+      { id: 'a', text: '구현은 그대로 두고 테스트만 자동화한다' },
+      { id: 'b', text: '구현이 분~시간으로 줄고, 테스트는 output + trajectory eval로 바뀐다' },
+      { id: 'c', text: 'Review & Deploy가 사라진다' },
+      { id: 'd', text: 'Requirements가 완전히 자동화되어 사람이 빠진다' },
+    ],
+    answerId: 'b',
+    explain:
+      '노란 강조 두 줄이 Implementation(1–3주 → minutes to hours)과 Testing → Evaluation(fast, automated — output + trajectory)입니다.',
+    image: quizImages.sdlcContrasts,
+  },
+  {
+    id: 'p1-mcq-7',
+    type: 'mcq',
+    difficulty: 'hard',
+    prompt: 'AI-driven SDLC의 Evaluation이 Output Eval과 Trajectory Eval로 나뉜 이유는?',
+    choices: [
+      { id: 'a', text: '출력 파일 크기와 커밋 수를 따로 재기 위해' },
+      { id: 'b', text: '무엇을 만들었는지와, 에이전트가 어떤 경로(도구·단계·스킵)로 갔는지를 둘 다 검증하기 위해' },
+      { id: 'c', text: '프론트엔드와 백엔드 테스트를 분리하기 위해' },
+      { id: 'd', text: '사람이 작성한 코드와 AI 코드를 다른 리포에 넣기 위해' },
+    ],
+    answerId: 'b',
+    explain:
+      '슬라이드 문구는 “Verify what it built AND how it got there.” James는 출력 성공이어도 과정이 비효율이면 학습 루프로 지시·컨텍스트·규칙을 고쳐야 한다고 했습니다.',
+    image: quizImages.sdlcAi,
+  },
+  {
+    id: 'p1-mcq-8',
+    type: 'mcq',
+    difficulty: 'hard',
+    prompt: 'AI-driven Review & Deploy에 대한 슬라이드 설명으로 맞는 것은?',
+    choices: [
+      { id: 'a', text: '사람이 빠지고 에이전트가 프로덕션에 바로 merge한다' },
+      { id: 'b', text: 'Faster — AI first pass, human approves' },
+      { id: 'c', text: '전통보다 느려진다 (2–3주)' },
+      { id: 'd', text: 'Maintenance와 같은 단계로 합쳐진다' },
+    ],
+    answerId: 'b',
+    explain:
+      '구현·평가는 크게 압축되지만, 배포 게이트에는 여전히 사람이 있습니다. Acme 레퍼런스의 “agents never final decision-maker”와 같은 메시지입니다.',
+    image: quizImages.sdlcContrasts,
+  },
+  {
+    id: 'p1-match-1',
+    type: 'match',
+    difficulty: 'medium',
+    prompt: '왼쪽 설명을 전통 SDLC / AI-driven SDLC 중 맞는 쪽에 연결하세요.',
+    left: [
+      { id: 'l1', text: 'Implementation 1–3 weeks' },
+      { id: 'l2', text: 'Implementation minutes to hours, agent self-corrects' },
+      { id: 'l3', text: 'Sprint cycle: weeks' },
+      { id: 'l4', text: 'Iteration cycle: minutes to hours' },
+      { id: 'l5', text: 'Testing 3–5 days (people-heavy)' },
+      { id: 'l6', text: 'Evaluation = output eval + trajectory eval' },
+    ],
+    right: [
+      { id: 'r-trad', text: 'Traditional Iterative SDLC' },
+      { id: 'r-ai', text: 'AI-Driven SDLC' },
+    ],
+    pairs: {
+      l1: 'r-trad',
+      l2: 'r-ai',
+      l3: 'r-trad',
+      l4: 'r-ai',
+      l5: 'r-trad',
+      l6: 'r-ai',
+    },
+    explain:
+      '같은 단계 이름이어도 병목과 비율이 바뀝니다. 구현이 붕괴되고, 테스트는 평가가 되며, 사이클은 주 단위에서 분~시간으로 줄어듭니다.',
+    image: quizImages.sdlcAi,
+  },
+  {
+    id: 'p1-drag-1',
+    type: 'drag-order',
+    difficulty: 'easy',
+    prompt: '전통 SDLC 여섯 단계를 슬라이드 순서대로 왼쪽부터 놓으세요.',
+    items: [
+      { id: 'testing', text: 'Testing' },
+      { id: 'design', text: 'Design' },
+      { id: 'maintenance', text: 'Maintenance' },
+      { id: 'requirements', text: 'Requirements' },
+      { id: 'impl', text: 'Implementation' },
+      { id: 'review', text: 'Review & Deploy' },
+    ],
+    answer: ['requirements', 'design', 'impl', 'testing', 'review', 'maintenance'],
+    explain: '선형 화살표 순서입니다. James는 이 앞에 customer signal, 뒤에 production feedback를 더했습니다.',
+    image: quizImages.sdlcTraditional,
+  },
+
+  {
+    id: 'p2-mcq-1',
+    type: 'mcq',
+    difficulty: 'easy',
+    prompt: 'Context Engineering 슬라이드의 핵심 문장으로 맞는 것은?',
+    choices: [
+      { id: 'a', text: 'AI 코드 품질은 프롬프트를 얼마나 교묘하게 쓰느냐에 달렸다' },
+      { id: 'b', text: 'AI 코드 품질은 프롬프트의 재치보다 제공된 컨텍스트 품질에 더 달렸다' },
+      { id: 'c', text: '컨텍스트는 모두 모델 가중치 안에 이미 들어 있다' },
+      { id: 'd', text: '컨텍스트는 코드 파일만 해당한다' },
+    ],
+    answerId: 'b',
+    explain:
+      '“depends less on the cleverness of your prompts and more on the quality of the context provided.” 대부분의 컨텍스트는 코드가 아니라 문서·결정·조직 지식입니다.',
+    image: quizImages.context,
+  },
+  {
+    id: 'p2-mcq-2',
+    type: 'mcq',
+    difficulty: 'easy',
+    prompt: 'Static context의 정의는?',
+    choices: [
+      { id: 'a', text: 'Loaded on demand, per task' },
+      { id: 'b', text: 'Always loaded, every interaction' },
+      { id: 'c', text: 'GitHub에 절대 넣지 않는 컨텍스트' },
+      { id: 'd', text: '사람만 읽고 에이전트는 못 읽는 컨텍스트' },
+    ],
+    answerId: 'b',
+    explain: '정적 컨텍스트는 매 상호작용마다 로드됩니다. 토큰 비용은 높지만 에이전트가 잊지 않습니다.',
+    image: quizImages.context,
+  },
+  {
+    id: 'p2-mcq-3',
+    type: 'mcq',
+    difficulty: 'medium',
+    prompt: 'AGENTS.md 같은 rules file은 어디에 속하나요?',
+    choices: [
+      { id: 'a', text: 'Dynamic context — RAG로만 불러온다' },
+      { id: 'b', text: 'Static context — system instructions / rules files' },
+      { id: 'c', text: 'Tools — API 호출 결과' },
+      { id: 'd', text: 'Examples — few-shot만 해당' },
+    ],
+    answerId: 'b',
+    explain:
+      '파란 박스에 System instructions, Rules files (AGENTS.md), Global memory, Core guardrails가 있습니다. James는 CLAUDE.md도 같은 종류의 정적 설정이라고 했습니다.',
+    image: quizImages.context,
+  },
+  {
+    id: 'p2-mcq-4',
+    type: 'mcq',
+    difficulty: 'medium',
+    prompt: 'Dynamic context가 정적 컨텍스트보다 토큰 효율이 좋은 이유는?',
+    choices: [
+      { id: 'a', text: '모델이 더 작아서' },
+      { id: 'b', text: '매 턴 전부 로드하지 않고, 태스크에 필요할 때만 로드하기 때문에' },
+      { id: 'c', text: 'GitHub에 저장되지 않기 때문에' },
+      { id: 'd', text: '사람이 직접 붙여넣기 때문에' },
+    ],
+    answerId: 'b',
+    explain:
+      '“Loaded on demand, per task. Token cost: low per turn. Pay only for what you use.” James는 Notion에서 PRD를 가져오는 것이 필요할 때만 쓰는 동적 컨텍스트 예라고 했습니다.',
+    image: quizImages.context,
+  },
+  {
+    id: 'p2-mcq-5',
+    type: 'mcq',
+    difficulty: 'hard',
+    prompt: '슬라이드의 여섯 가지 agent context 유형이 아닌 것은?',
+    choices: [
+      { id: 'a', text: 'Instructions / Knowledge / Memory' },
+      { id: 'b', text: 'Examples / Tools / Guardrails' },
+      { id: 'c', text: 'Sprint velocity / Story points / Burndown' },
+      { id: 'd', text: 'Knowledge와 Guardrails (정적·동적 모두에 화살표가 갈 수 있음)' },
+    ],
+    answerId: 'c',
+    explain:
+      '여섯 유형은 Instructions, Knowledge, Memory, Examples, Tools, Guardrails입니다. Knowledge는 정적(항상 넣는 핵심 지식)과 동적(RAG) 양쪽으로 갈 수 있습니다.',
+    image: quizImages.context,
+  },
+  {
+    id: 'p2-mcq-6',
+    type: 'mcq',
+    difficulty: 'hard',
+    prompt: '엔지니어링 팀에 “Notion이 회사 전체 컨텍스트 스토어”라고 단정하면 안 되는 이유로 가장 가까운 것은?',
+    choices: [
+      { id: 'a', text: 'Notion에는 문서를 넣을 수 없어서' },
+      { id: 'b', text: '코딩 에이전트가 매 런타임에 로드하는 정적 컨텍스트(규칙, 가드레일, 버전된 파일)는 대개 GitHub에 있기 때문' },
+      { id: 'c', text: 'GitHub에는 마크다운을 넣을 수 없어서' },
+      { id: 'd', text: '동적 컨텍스트는 항상 OneDrive에만 있어야 해서' },
+    ],
+    answerId: 'b',
+    explain:
+      'James의 세일즈 포인트: GitHub의 정적·버전 관리된 컨텍스트를 인정한 뒤, Notion은 큐레이션된 동적 컨텍스트(시그널, 협업, PRD)로 포지셔닝하라는 것입니다.',
+    image: quizImages.context,
+  },
+  {
+    id: 'p2-match-1',
+    type: 'match',
+    difficulty: 'medium',
+    prompt: '각 항목을 Static context 또는 Dynamic context에 연결하세요.',
+    left: [
+      { id: 'l1', text: 'Rules files (AGENTS.md)' },
+      { id: 'l2', text: 'System instructions' },
+      { id: 'l3', text: 'Core guardrails (always on)' },
+      { id: 'l4', text: 'Agent Skills (triggered by task match)' },
+      { id: 'l5', text: 'Tool results retrieved during execution' },
+      { id: 'l6', text: 'Retrieved documents (RAG)' },
+    ],
+    right: [
+      { id: 'static', text: 'Static — always loaded' },
+      { id: 'dynamic', text: 'Dynamic — on demand' },
+    ],
+    pairs: {
+      l1: 'static',
+      l2: 'static',
+      l3: 'static',
+      l4: 'dynamic',
+      l5: 'dynamic',
+      l6: 'dynamic',
+    },
+    explain:
+      '판별 질문은 “항상 로드되는가, 필요할 때만인가”입니다. 내용이 바뀐다고 해서 무조건 동적인 것은 아닙니다.',
+    image: quizImages.context,
+  },
+  {
+    id: 'p2-drag-1',
+    type: 'drag-bins',
+    difficulty: 'hard',
+    prompt: '세일즈 대화에서 어디에 놓을지 칸에 넣으세요.',
+    items: [
+      { id: 'prd-collab', text: '여러 팀이 큐레이션하는 PRD·고객 시그널' },
+      { id: 'gong', text: 'Gong 콜에서 나온 비정형 피드백' },
+      { id: 'agents-md', text: '버전 관리되는 AGENTS.md / CLAUDE.md' },
+      { id: 'impl-plan', text: 'Claude Code가 만든 implementation plan' },
+      { id: 'evals', text: '커밋과 함께 기록되는 tests / evals' },
+      { id: 'jira-mcp', text: 'Jira 전체 기밀 티켓을 MCP로 무제한 개방' },
+    ],
+    slots: [
+      { id: 'notion', label: 'Notion 기회', hint: '큐레이션된 동적 컨텍스트' },
+      { id: 'github', label: 'GitHub에 둘 것', hint: '정적·버전 관리' },
+      { id: 'danger', label: '위험', hint: '직접 연결이 위험한 것' },
+    ],
+    answer: {
+      'prd-collab': 'notion',
+      gong: 'notion',
+      'agents-md': 'github',
+      'impl-plan': 'github',
+      evals: 'github',
+      'jira-mcp': 'danger',
+    },
+    explain:
+      'Notion은 협업·큐레이션된 동적 컨텍스트, GitHub는 버전된 정적 자산, Jira 전체 MCP는 기밀 노출 위험이 있습니다. 둘은 either-or가 아니라 같이 씁니다.',
+  },
+
+  {
+    id: 'p3-drag-1',
+    type: 'drag-bins',
+    difficulty: 'medium',
+    prompt: 'James가 라이브에서 한 것처럼, 각 제품을 capability 번호(01–07)에 넣으세요.',
+    items: [
+      { id: 'zendesk', text: 'Zendesk' },
+      { id: 'productboard', text: 'Productboard' },
+      { id: 'jira', text: 'Jira' },
+      { id: 'datadog', text: 'Datadog' },
+      { id: 'snowflake', text: 'Snowflake' },
+      { id: 'k8s', text: 'Kubernetes' },
+      { id: 'okta', text: 'Okta' },
+    ],
+    slots: [
+      { id: '01', label: '01 Customer Insight', hint: 'Where signal starts' },
+      { id: '02', label: '02 Product & Design', hint: 'Signal becomes intent' },
+      { id: '03', label: '03 Engineering Execution', hint: 'Intent becomes shipped code' },
+      { id: '04', label: '04 Operations & Feedback', hint: 'Healthy? Adopted?' },
+      { id: '05', label: '05 Systems of Record & Data', hint: 'What is true' },
+      { id: '06', label: '06 Cloud & Hosting', hint: 'Where it runs' },
+      { id: '07', label: '07 Identity & Governance', hint: 'Who may do what' },
+    ],
+    answer: {
+      zendesk: '01',
+      productboard: '02',
+      jira: '03',
+      datadog: '04',
+      snowflake: '05',
+      k8s: '06',
+      okta: '07',
+    },
+    explain:
+      '라이브 정답: Zendesk 01, Productboard 02, Kubernetes 06, Snowflake 05. Jira는 delivery tracking(03), Datadog는 observability(04), Okta는 identity(07)입니다. GitHub는 한 칸이 아니라 source control / review / release에 걸칩니다.',
+    image: quizImages.capabilityMap,
+  },
+  {
+    id: 'p3-mcq-1',
+    type: 'mcq',
+    difficulty: 'easy',
+    prompt: 'Capability map에서 Zendesk가 들어가는 행은?',
+    choices: [
+      { id: 'a', text: '01 Customer Insight — support & ticketing' },
+      { id: 'b', text: '03 Engineering Execution — source control' },
+      { id: 'c', text: '06 Cloud & Hosting — containers' },
+      { id: 'd', text: '07 Identity & Governance — secrets' },
+    ],
+    answerId: 'a',
+    explain: '세션 퀴즈에서 Zendesk는 가장 쉬운 문항이었습니다. 고객이 문제를 신고하는 support & ticketing입니다.',
+    image: quizImages.capabilityMap,
+  },
+  {
+    id: 'p3-mcq-2',
+    type: 'mcq',
+    difficulty: 'easy',
+    prompt: '이 맵에서 “capability”가 의미하는 것은?',
+    choices: [
+      { id: 'a', text: '특정 벤더 제품 이름 (Jira, GitHub…)' },
+      { id: 'b', text: '제품·엔지니어링 팀이 제품을 만들기 위해 수행해야 하는 일(job) — 제품은 바뀌어도 일은 남는다' },
+      { id: 'c', text: '클라우드 리전' },
+      { id: 'd', text: '스프린트 길이' },
+    ],
+    answerId: 'b',
+    explain:
+      'James: 일은 오래가고, 그 일을 채우는 제품은 바뀝니다. Jira와 Linear는 delivery tracking이라는 같은 capability의 교체 가능한 제품입니다.',
+    image: quizImages.capabilityMap,
+  },
+  {
+    id: 'p3-mcq-3',
+    type: 'mcq',
+    difficulty: 'medium',
+    prompt: '고객이 “우린 GitHub 써요”라고 할 때 James가 바로 이어서 물으라고 한 것은?',
+    choices: [
+      { id: 'a', text: '월 요금이 얼마인지' },
+      { id: 'b', text: 'GitHub for what? — source control, code review, build & release 중 무엇에 쓰는지' },
+      { id: 'c', text: 'Bitbucket으로 바로 갈아탈 수 있는지' },
+      { id: 'd', text: 'README가 있는지' },
+    ],
+    answerId: 'b',
+    explain:
+      '많은 제품이 라이프사이클의 여러 capability에 걸칩니다. Notion도 “어디에 쓰나?”를 물어야 하는 것과 같습니다.',
+    image: quizImages.capabilityMap,
+  },
+  {
+    id: 'p3-mcq-4',
+    type: 'mcq',
+    difficulty: 'medium',
+    prompt: 'Kubernetes가 맵에서 속하는 곳은?',
+    choices: [
+      { id: 'a', text: '03 — AI coding agents' },
+      { id: 'b', text: '05 — Data warehouse' },
+      { id: 'c', text: '06 Cloud & Hosting — container orchestration' },
+      { id: 'd', text: '01 — Community & messaging' },
+    ],
+    answerId: 'c',
+    explain:
+      '컨테이너를 대규모로 돌리고 실패 시 재시작하는 control tower가 orchestration입니다. Docker는 packaging, Kubernetes는 orchestration에 가깝습니다.',
+    image: quizImages.capabilityMap,
+  },
+  {
+    id: 'p3-mcq-5',
+    type: 'mcq',
+    difficulty: 'hard',
+    prompt: 'CORE(01–04)와 FOUNDATION(05–07)의 차이로 맞는 것은?',
+    choices: [
+      { id: 'a', text: 'Foundation은 시그널이 shipped change가 되는 본 흐름이고, Core는 그 아래 인프라이다' },
+      { id: 'b', text: 'Core는 “signal → shipped change → feedback”, Foundation은 그 일이 돌아가는 기반(데이터·클라우드·신원)으로 위 레이어 전체에 걸친다' },
+      { id: 'c', text: 'Foundation만 Notion이 들어갈 수 있다' },
+      { id: 'd', text: 'Core에는 도구 이름이 없고 Foundation에만 있다' },
+    ],
+    answerId: 'b',
+    explain:
+      '맵 범례: CORE는 시그널이 배송된 변경이 되고 피드백이 다시 위로 돌아옵니다. FOUNDATION은 그 일이 돌아가는 기반입니다.',
+    image: quizImages.capabilityMap,
+  },
+  {
+    id: 'p3-match-1',
+    type: 'match',
+    difficulty: 'easy',
+    prompt: 'CORE 네 행을 슬라이드 한 줄 설명과 연결하세요.',
+    left: [
+      { id: '01', text: '01 Customer Insight' },
+      { id: '02', text: '02 Product & Design' },
+      { id: '03', text: '03 Engineering Execution' },
+      { id: '04', text: '04 Operations & Feedback' },
+    ],
+    right: [
+      { id: 'r1', text: 'Where signal starts' },
+      { id: 'r2', text: 'Signal becomes intent' },
+      { id: 'r3', text: 'Intent becomes shipped code' },
+      { id: 'r4', text: 'Healthy? Adopted? Feeds back to 01' },
+    ],
+    pairs: { '01': 'r1', '02': 'r2', '03': 'r3', '04': 'r4' },
+    explain: '시그널 → 의도 → 코드 → 운영 피드백이 다시 01로 돌아가는 학습 루프와 같은 그림입니다.',
+    image: quizImages.capabilityMap,
+  },
+
+  {
+    id: 'p4-mcq-1',
+    type: 'mcq',
+    difficulty: 'easy',
+    prompt: 'Git과 GitHub의 구분으로 맞는 것은?',
+    choices: [
+      { id: 'a', text: 'Git은 클라우드 호스팅, GitHub는 로컬 에디터' },
+      { id: 'b', text: 'Git은 로컬에서 파일 변화를 추적하는 오픈소스 도구, GitHub는 그 히스토리를 저장·리뷰·권한 관리하는 클라우드 원격 저장소' },
+      { id: 'c', text: '둘은 같은 제품의 다른 이름이다' },
+      { id: 'd', text: 'GitHub만 있으면 Git은 필요 없고, 반대로도 그렇다' },
+    ],
+    answerId: 'b',
+    explain: '로컬 Git이 추적하고, 업데이트를 GitHub 클라우드로 push합니다. 둘이 함께 동작합니다.',
+    image: quizImages.githubTwoWays,
+  },
+  {
+    id: 'p4-mcq-2',
+    type: 'mcq',
+    difficulty: 'easy',
+    prompt: '슬라이드 하단 배너 “Pull down, push up…”의 의미는?',
+    choices: [
+      { id: 'a', text: '사람은 로컬 복사본을 pull/push하고, 에이전트는 노트북 없이 원격에 직접 read/write한다' },
+      { id: 'b', text: '에이전트만 pull/push할 수 있다' },
+      { id: 'c', text: 'Pull request는 더 이상 쓰지 않는다' },
+      { id: 'd', text: '로컬 복사본이 팀의 source of truth다' },
+    ],
+    answerId: 'a',
+    explain:
+      '가운데 라임 박스가 GitHub(팀의 공유본)입니다. 사람과 에이전트는 complementary이지 competing이 아닙니다.',
+    image: quizImages.githubTwoWays,
+  },
+  {
+    id: 'p4-mcq-3',
+    type: 'mcq',
+    difficulty: 'medium',
+    prompt: '“Pull”과 “Pull Request”의 차이는?',
+    choices: [
+      { id: 'a', text: '같은 동작의 다른 이름' },
+      { id: 'b', text: 'Pull은 원격 파일을 로컬로 가져오는 것(clone/fetch). Pull Request는 변경을 묶어 리뷰·승인 게이트로 올리는 것' },
+      { id: 'c', text: 'Pull Request는 로컬에만 존재하고 GitHub에는 없다' },
+      { id: 'd', text: 'Pull은 merge이고 Pull Request는 commit이다' },
+    ],
+    answerId: 'b',
+    explain:
+      'PR은 main에 바로 들어가지 않습니다. 사람 또는 에이전트가 리뷰한 뒤 merge합니다. Notion 코딩 에이전트도 토큰으로 GitHub에 접근합니다.',
+    image: quizImages.githubTwoWays,
+  },
+  {
+    id: 'p4-mcq-4',
+    type: 'mcq',
+    difficulty: 'medium',
+    prompt: 'PR #225 슬라이드에서 “Files changed” 숫자 5와 +401 −14가 뜻하는 것은?',
+    choices: [
+      { id: 'a', text: '커밋이 5개이고, 5개 파일이 401줄이다' },
+      { id: 'b', text: '파일 5개가 바뀌었고, PR 전체 합이 401줄 추가·14줄 삭제' },
+      { id: 'c', text: '리뷰어가 5명이고, 이슈가 401개다' },
+      { id: 'd', text: '브랜치가 5개다' },
+    ],
+    answerId: 'b',
+    explain:
+      '“A pull request’s diff is a stack of file diffs — one per file.” 파일마다 +N −M이 있고, 헤더 합이 전체입니다.',
+    image: quizImages.githubPr,
+  },
+  {
+    id: 'p4-mcq-5',
+    type: 'mcq',
+    difficulty: 'hard',
+    prompt: 'Hunk 헤더 `@@ -127,10 +127,14 @@`의 의미는?',
+    choices: [
+      { id: 'a', text: '127개 파일이 10→14로 늘었다' },
+      { id: 'b', text: '옛 파일은 127번째 줄부터 10줄, 새 파일은 127번째 줄부터 14줄인 excerpt' },
+      { id: 'c', text: '커밋 해시의 앞 숫자' },
+      { id: 'd', text: 'PR 번호 127, 리뷰어 10명' },
+    ],
+    answerId: 'b',
+    explain:
+      '슬라이드 콜아웃 그대로입니다. unified diff에서 `-`는 old, `+`는 new입니다. 빨간 줄은 삭제, 초록 줄은 추가입니다.',
+    image: quizImages.githubPr,
+  },
+  {
+    id: 'p4-mcq-6',
+    type: 'mcq',
+    difficulty: 'hard',
+    prompt: '클라우드 코딩 에이전트가 GitHub에 접근하는 방식은?',
+    choices: [
+      { id: 'a', text: '개발자 노트북의 Git을 원격 제어한다' },
+      { id: 'b', text: '로컬 복사본 없이 원격에 직접 일하며, 필요한 권한만 가진 access token을 쓴다' },
+      { id: 'c', text: 'SSH로 사람의 비밀번호를 재사용한다' },
+      { id: 'd', text: 'PR 없이 main에 항상 force push한다' },
+    ],
+    answerId: 'b',
+    explain:
+      '에이전트는 Notion 같은 SaaS 안에서도 돌 수 있습니다. 변경은 사람든 에이전트든 같은 생명주기(branch → commit → PR → review → merge)를 따릅니다.',
+    image: quizImages.githubTwoWays,
+  },
+  {
+    id: 'p4-drag-1',
+    type: 'drag-order',
+    difficulty: 'medium',
+    prompt: '사람·에이전트 공통 변경 생명주기를 슬라이드 순서대로 놓으세요.',
+    items: [
+      { id: 'review', text: 'review' },
+      { id: 'branch', text: 'branch' },
+      { id: 'merge', text: 'merge' },
+      { id: 'pr', text: 'pull request' },
+      { id: 'commit', text: 'commit' },
+    ],
+    answer: ['branch', 'commit', 'pr', 'review', 'merge'],
+    explain:
+      '브랜치에 작업을 담고, 커밋으로 스냅샷을 남기고, PR로 올리고, 리뷰(사람 또는 Claude) 후 main으로 merge합니다.',
+    image: quizImages.githubTwoWays,
+  },
+  {
+    id: 'p4-match-1',
+    type: 'match',
+    difficulty: 'easy',
+    prompt: '로컬 워크플로와 클라우드 에이전트 용어를 연결하세요.',
+    left: [
+      { id: 'l1', text: 'Pull' },
+      { id: 'l2', text: 'Push' },
+      { id: 'l3', text: 'Read / Write (agent)' },
+      { id: 'l4', text: 'Access token' },
+      { id: 'l5', text: 'Claude Code + GitHub CLI' },
+    ],
+    right: [
+      { id: 'r1', text: 'GitHub → 내 머신으로 파일을 가져온다' },
+      { id: 'r2', text: '로컬 커밋을 GitHub로 보낸다' },
+      { id: 'r3', text: '노트북 없이 원격 저장소에 직접 작업' },
+      { id: 'r4', text: '에이전트 전용 키, 최소 권한' },
+      { id: 'r5', text: '의도를 로컬 명령으로 바꿔 동기화' },
+    ],
+    pairs: { l1: 'r1', l2: 'r2', l3: 'r3', l4: 'r4', l5: 'r5' },
+    explain: '가운데 GitHub가 source of truth이고 PR·리뷰·ACL을 담당합니다.',
+    image: quizImages.githubTwoWays,
+  },
+
+  {
+    id: 'p5-mcq-1',
+    type: 'mcq',
+    difficulty: 'easy',
+    prompt: 'Acme Robotics 케이스의 기본 설정으로 맞는 것은?',
+    choices: [
+      { id: 'a', text: '50명 스타트업, CEO만 의사결정' },
+      { id: 'b', text: '로봇 소프트웨어 회사, 약 2,500명. CIO Jordan이 6주 뒤 보드에 혁신 계획을 가져가려 한다' },
+      { id: 'c', text: '이미 Notion Enterprise를 전사 표준으로 쓰고 있다' },
+      { id: 'd', text: 'GitHub를 쓰지 않는 완전 노코드 회사' },
+    ],
+    answerId: 'b',
+    explain: 'CTO·VP Product가 Notion fit을 보고, CIO는 더 넓은 트랜스포메이션을 봅니다. 컨텍스트는 사방에 흩어져 있습니다.',
+  },
+  {
+    id: 'p5-mcq-2',
+    type: 'mcq',
+    difficulty: 'easy',
+    prompt: 'Jordan이 보드에 말하고 싶어 하는 세 단어는?',
+    choices: [
+      { id: 'a', text: 'Cheaper, bigger, louder' },
+      { id: 'b', text: 'Faster, safer, more visible' },
+      { id: 'c', text: 'Vibe, ship, repeat' },
+      { id: 'd', text: 'Hire, outsource, sunset' },
+    ],
+    answerId: 'b',
+    explain: '빠르게, 안전하게(거버넌스), 보이게. 그래서 프로토타입이 필요하고 에이전트가 최종 결정자가 되면 안 됩니다.',
+  },
+  {
+    id: 'p5-mcq-3',
+    type: 'mcq',
+    difficulty: 'medium',
+    prompt: 'AS-IS vs FUTURE 세일즈 워크플로 슬라이드가 강조하는 숫자는?',
+    choices: [
+      { id: 'a', text: '도구 12개 → 5개, 대부분의 중간 단계가 Notion Documentation & Process Automation Platform 안에서 돈다' },
+      { id: 'b', text: '미팅 횟수 12회 → 5회' },
+      { id: 'c', text: '직원 1200명 → 500명' },
+      { id: 'd', text: 'Jira를 12개 워크스페이스에서 5개로' },
+    ],
+    answerId: 'a',
+    explain:
+      '단계 논리(승인 다이아몬드 등)는 남고, 실행 매체가 줄어듭니다. HubSpot은 Notion Worker Sync로 연결됩니다.',
+    image: quizImages.asisTobe,
+  },
+  {
+    id: 'p5-mcq-4',
+    type: 'mcq',
+    difficulty: 'medium',
+    prompt: 'Why / What / How 프레임에서 “What”이 가리키는 것은?',
+    choices: [
+      { id: 'a', text: '어떤 Notion 플랜을 파는지' },
+      { id: 'b', text: '기술을 아직 고르지 않은 채, as-is 워크플로를 단계로 deconstruct하는 것' },
+      { id: 'c', text: '에이전트 프롬프트 문구' },
+      { id: 'd', text: 'GitHub 요금제' },
+    ],
+    answerId: 'b',
+    explain:
+      'Why = pain + outcome. What = 단계 시퀀스(기술 무관). How = to-be 재설계와 Notion이 들어갈 자리. Jordan이 사는 것은 제품이 아니라 워크플로 성과입니다.',
+  },
+  {
+    id: 'p5-mcq-5',
+    type: 'mcq',
+    difficulty: 'hard',
+    prompt: 'Acme 레퍼런스 다이어그램의 거버넌스 한 줄에 없는 것은?',
+    choices: [
+      { id: 'a', text: 'SSO · least privilege · full audit trail' },
+      { id: 'b', text: 'agents never final decision-maker' },
+      { id: 'c', text: '에이전트가 PR을 사람 승인 없이 production merge' },
+      { id: 'd', text: 'ABAC / RBAC permissions' },
+    ],
+    answerId: 'c',
+    explain:
+      '분홍 다이아몬드가 세 번(PM, PM+Eng, approach) 있습니다. 에이전트는 만들고 알리지만 최종 결정은 사람입니다.',
+    image: quizImages.acme,
+  },
+  {
+    id: 'p5-mcq-6',
+    type: 'mcq',
+    difficulty: 'hard',
+    prompt: 'Sydney 팀 보드를 본 James가 “퍼즐에서 빠진 조각”으로 짚은 것은?',
+    choices: [
+      { id: 'a', text: 'HubSpot 라이선스' },
+      { id: 'b', text: '코딩 에이전트가 결과를 GitHub(PR)에 쓰는 구간' },
+      { id: 'c', text: 'Zoom 녹화 보관' },
+      { id: 'd', text: '사무실 화이트보드 사진' },
+    ],
+    answerId: 'b',
+    explain:
+      '레퍼런스는 Claude External Agent 승인 후 GitHub PR로 나갑니다. 내일 빌드에서 GitHub personal access token이 그 연결입니다.',
+    image: quizImages.acme,
+  },
+  {
+    id: 'p5-match-1',
+    type: 'match',
+    difficulty: 'medium',
+    prompt: '디스커버리 설계 용어를 연결하세요.',
+    left: [
+      { id: 'l1', text: 'Why' },
+      { id: 'l2', text: 'What' },
+      { id: 'l3', text: 'How' },
+      { id: 'l4', text: 'Customer feedback triage' },
+      { id: 'l5', text: 'Augmented / Human-Led × Guided' },
+      { id: 'l6', text: 'Automated / AI-Led × Autonomous' },
+    ],
+    right: [
+      { id: 'r1', text: 'Pain과 원하는 비즈니스 성과를 분명히' },
+      { id: 'r2', text: 'As-is를 기술과 무관한 단계로 분해' },
+      { id: 'r3', text: 'To-be를 재설계하고 Notion이 들어갈 자리' },
+      { id: 'r4', text: '이름 붙은 워크플로 (trigger → output)' },
+      { id: 'r5', text: 'AI가 선택하되 사람이 방향을 스티어' },
+      { id: 'r6', text: '목표만 주고 단계는 사람이 안 봄 — 에이전트가 끝까지' },
+    ],
+    pairs: { l1: 'r1', l2: 'r2', l3: 'r3', l4: 'r4', l5: 'r5', l6: 'r6' },
+    explain:
+      '매트릭스는 통제의 어휘입니다. Acme는 승인 게이트가 있어 Augmented + Guided/Autonomous(사람 승인)에 가깝고, 완전 무인 Autonomous AI-Led는 Jordan의 safer 메시지와 잘 안 맞습니다.',
+    image: quizImages.matrix,
+  },
+  {
+    id: 'p5-drag-1',
+    type: 'drag-order',
+    difficulty: 'hard',
+    prompt: 'Acme 레퍼런스: Product signal → PRD → Prototype 흐름을 순서대로 놓으세요.',
+    items: [
+      { id: 'prd-approve', text: 'PM + Eng가 PRD 승인' },
+      { id: 'sync', text: 'Gong / Jira / Slack → Notion Worker Sync' },
+      { id: 'github', text: 'GitHub PR 생성' },
+      { id: 'signals', text: 'Signals Agent가 Product Signal Card 생성 (사람 알림)' },
+      { id: 'approach', text: 'PM + Eng가 Claude External Agent 접근 방식 승인' },
+      { id: 'pm-signal', text: 'PM이 시그널 카드 승인' },
+      { id: 'prd', text: 'PRD Agent가 PRD 생성 (사람 알림)' },
+      { id: 'proto', text: 'Prototype tasks가 Claude External Agent를 invoke' },
+    ],
+    answer: ['sync', 'signals', 'pm-signal', 'prd', 'prd-approve', 'proto', 'approach', 'github'],
+    explain:
+      '외부 시그널 → 카드 → PM 게이트 → PRD → PM+Eng 게이트 → 프로토타입 태스크 → 접근 방식 게이트 → GitHub PR. No는 prototype tasks로 루프합니다.',
+    image: quizImages.acme,
+  },
+]
+
+export const parts: Part[] = [
+  {
+    id: 'sdlc',
+    number: 1,
+    title: 'AI-driven SDLC',
+    summary: '전통 6단계, 병목 이동, spec이 eval criteria가 되는 이유',
+    stages: [
+      {
+        id: 'sdlc-mcq',
+        type: 'mcq',
+        title: '객관식 8문항',
+        blurb: '한 화면씩, 4지선다. 하·중·상이 섞여 있습니다.',
+        questionIds: [
+          'p1-mcq-1',
+          'p1-mcq-2',
+          'p1-mcq-3',
+          'p1-mcq-4',
+          'p1-mcq-5',
+          'p1-mcq-6',
+          'p1-mcq-7',
+          'p1-mcq-8',
+        ],
+      },
+      {
+        id: 'sdlc-match',
+        type: 'match',
+        title: '카드 매칭',
+        blurb: '한 화면에서 왼쪽 설명을 오른쪽 라이프사이클에 연결합니다.',
+        questionIds: ['p1-match-1'],
+      },
+      {
+        id: 'sdlc-drag',
+        type: 'drag-order',
+        title: '드래그로 순서 맞추기',
+        blurb: '전통 SDLC 여섯 칸을 화살표 순서로 놓습니다.',
+        questionIds: ['p1-drag-1'],
+      },
+    ],
+  },
+  {
+    id: 'context',
+    number: 2,
+    title: 'Context · Agent · 포지셔닝',
+    summary: 'Static vs dynamic, harness 주변 언어, Notion이 들어갈 자리',
+    stages: [
+      {
+        id: 'ctx-mcq',
+        type: 'mcq',
+        title: '객관식 6문항',
+        blurb: '컨텍스트 엔지니어링 슬라이드와 세션 세일즈 포인트를 확인합니다.',
+        questionIds: ['p2-mcq-1', 'p2-mcq-2', 'p2-mcq-3', 'p2-mcq-4', 'p2-mcq-5', 'p2-mcq-6'],
+      },
+      {
+        id: 'ctx-match',
+        type: 'match',
+        title: '카드 매칭',
+        blurb: '항목을 정적/동적 컨텍스트에 연결합니다.',
+        questionIds: ['p2-match-1'],
+      },
+      {
+        id: 'ctx-drag',
+        type: 'drag-bins',
+        title: '드래그로 분류',
+        blurb: 'Notion 기회 / GitHub / 위험 세 칸에 놓습니다.',
+        questionIds: ['p2-drag-1'],
+      },
+    ],
+  },
+  {
+    id: 'stack',
+    number: 3,
+    title: 'Capability map',
+    summary: '01–07 도메인에 고객 도구를 분류하는 법',
+    stages: [
+      {
+        id: 'stack-drag',
+        type: 'drag-bins',
+        title: '도구 → 도메인 드래그',
+        blurb: '라이브 퀴즈(Zendesk, Productboard, Kubernetes, Snowflake)와 같은 형식입니다.',
+        questionIds: ['p3-drag-1'],
+      },
+      {
+        id: 'stack-mcq',
+        type: 'mcq',
+        title: '객관식 5문항',
+        blurb: 'capability vs product, GitHub의 여러 역할.',
+        questionIds: ['p3-mcq-1', 'p3-mcq-2', 'p3-mcq-3', 'p3-mcq-4', 'p3-mcq-5'],
+      },
+      {
+        id: 'stack-match',
+        type: 'match',
+        title: '카드 매칭',
+        blurb: 'CORE 01–04 행과 한 줄 설명을 연결합니다.',
+        questionIds: ['p3-match-1'],
+      },
+    ],
+  },
+  {
+    id: 'github',
+    number: 4,
+    title: 'GitHub',
+    summary: '로컬 vs 클라우드 에이전트, PR diff, 변경 생명주기',
+    stages: [
+      {
+        id: 'gh-mcq',
+        type: 'mcq',
+        title: '객관식 6문항',
+        blurb: 'Git vs GitHub, pull vs PR, unified diff 헤더.',
+        questionIds: ['p4-mcq-1', 'p4-mcq-2', 'p4-mcq-3', 'p4-mcq-4', 'p4-mcq-5', 'p4-mcq-6'],
+      },
+      {
+        id: 'gh-drag',
+        type: 'drag-order',
+        title: '드래그로 생명주기',
+        blurb: 'branch → commit → pull request → review → merge',
+        questionIds: ['p4-drag-1'],
+      },
+      {
+        id: 'gh-match',
+        type: 'match',
+        title: '카드 매칭',
+        blurb: 'pull/push와 에이전트 read/write를 연결합니다.',
+        questionIds: ['p4-match-1'],
+      },
+    ],
+  },
+  {
+    id: 'acme',
+    number: 5,
+    title: 'Acme · 워크플로 설계',
+    summary: 'Why/What/How, as-is vs to-be, governance-first 레퍼런스',
+    stages: [
+      {
+        id: 'acme-mcq',
+        type: 'mcq',
+        title: '객관식 6문항',
+        blurb: '케이스 사실, 12→5 도구, 에이전트는 최종 결정자가 아님.',
+        questionIds: ['p5-mcq-1', 'p5-mcq-2', 'p5-mcq-3', 'p5-mcq-4', 'p5-mcq-5', 'p5-mcq-6'],
+      },
+      {
+        id: 'acme-match',
+        type: 'match',
+        title: '카드 매칭',
+        blurb: 'Why/What/How와 워크플로 매트릭스 칸을 연결합니다.',
+        questionIds: ['p5-match-1'],
+      },
+      {
+        id: 'acme-drag',
+        type: 'drag-order',
+        title: '드래그로 to-be 흐름',
+        blurb: '시그널 → PRD → 프로토타입 → GitHub PR',
+        questionIds: ['p5-drag-1'],
+      },
+    ],
+  },
+]
+
+export const questionById = new Map(questions.map((q) => [q.id, q]))
+
+export function questionsForStage(part: Part, stageIndex: number): Question[] {
+  const stage = part.stages[stageIndex]
+  return stage.questionIds.map((id) => {
+    const question = questionById.get(id)
+    if (!question) throw new Error(`Missing question ${id}`)
+    return question
+  })
+}
+
+export function allQuestionIds(): string[] {
+  return questions.map((q) => q.id)
+}
