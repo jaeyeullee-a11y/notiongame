@@ -56,6 +56,9 @@ export type Season = z.infer<typeof SeasonSchema>
 export const WeatherTypeSchema = z.enum(['clear', 'rain', 'snow'])
 export type WeatherType = z.infer<typeof WeatherTypeSchema>
 
+export const ColorThemeSchema = z.enum(['light', 'dark', 'system'])
+export type ColorTheme = z.infer<typeof ColorThemeSchema>
+
 export const GardenSaveDataSchema = z.object({
   schemaVersion: z.union([z.literal(1), z.literal(2)]),
   id: z.string(),
@@ -78,6 +81,7 @@ export const GardenSaveDataSchema = z.object({
     ambienceEnabled: z.boolean(),
     musicVolume: z.number().min(0).max(1),
     ambienceVolume: z.number().min(0).max(1),
+    colorTheme: ColorThemeSchema.default('system'),
   }),
   metadata: z.object({
     objectCount: z.number().int().nonnegative(),
