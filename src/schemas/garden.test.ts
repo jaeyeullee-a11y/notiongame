@@ -67,6 +67,41 @@ describe('season and weather schemas', () => {
     expect(parsed.season).toBe('spring')
     expect(parsed.weather).toBe('clear')
     expect(parsed.schemaVersion).toBe(1)
+    expect(parsed.settings.colorTheme).toBe('system')
+  })
+
+  it('defaults missing colorTheme to system', () => {
+    const save = createNewGardenSave('Theme Legacy', 'empty')
+    const withoutTheme = {
+      ...save,
+      settings: {
+        musicEnabled: true,
+        ambienceEnabled: true,
+        musicVolume: 0.45,
+        ambienceVolume: 0.35,
+      },
+    }
+    const parsed = GardenSaveDataSchema.parse(withoutTheme)
+    expect(parsed.settings.colorTheme).toBe('system')
+  })
+
+  it('accepts colorTheme dark', () => {
+    const save = createNewGardenSave('Dark Garden', 'empty')
+    const parsed = GardenSaveDataSchema.parse({
+      ...save,
+      settings: { ...save.settings, colorTheme: 'dark' },
+    })
+    expect(parsed.settings.colorTheme).toBe('dark')
+  })
+
+  it('rejects invalid colorTheme values', () => {
+    const save = createNewGardenSave('Bad Theme', 'empty')
+    expect(() =>
+      GardenSaveDataSchema.parse({
+        ...save,
+        settings: { ...save.settings, colorTheme: 'purple' },
+      }),
+    ).toThrow()
   })
 
   it('round-trips a complete v2 save', () => {
