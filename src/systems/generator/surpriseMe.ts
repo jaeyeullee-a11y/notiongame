@@ -214,6 +214,7 @@ export function createNewGardenSave(
       ambienceEnabled: true,
       musicVolume: 0.45,
       ambienceVolume: 0.35,
+      colorTheme: 'system',
     },
     season: 'spring',
     weather: 'clear',

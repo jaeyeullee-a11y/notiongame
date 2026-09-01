@@ -70,6 +70,7 @@ export class AudioManager {
     ambienceEnabled: true,
     musicVolume: 0.45,
     ambienceVolume: 0.35,
+    colorTheme: 'system',
   }
   private unlocked = false
 
