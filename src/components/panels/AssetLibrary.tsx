@@ -31,7 +31,7 @@ export function AssetLibrary() {
       <div className="panel-body">
         <input
           className="search-input"
-          placeholder="Search plants & structures"
+          placeholder="Search plants, features & animals"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />

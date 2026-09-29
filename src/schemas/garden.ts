@@ -7,6 +7,7 @@ export const AssetCategorySchema = z.enum([
   'trees',
   'features',
   'structures',
+  'animals',
 ])
 
 export const GardenAssetDefinitionSchema = z.object({
