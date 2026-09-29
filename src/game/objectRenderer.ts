@@ -22,6 +22,7 @@ export class ObjectRenderer {
   private readonly visuals = new Map<string, ObjectVisual>()
   private textures = new Map<string, Texture>()
   private selectedId: string | null = null
+  private hoveredId: string | null = null
   private ghost: ObjectVisual | null = null
   private season: Season = 'spring'
 
@@ -43,10 +44,12 @@ export class ObjectRenderer {
   sync(
     objects: PlacedGardenObject[],
     selectedId: string | null,
+    hoveredId: string | null,
     showFootprints: boolean,
     season: Season,
   ): void {
     this.selectedId = selectedId
+    this.hoveredId = hoveredId
     this.season = season
     const alive = new Set(objects.map((o) => o.instanceId))
 
@@ -64,7 +67,12 @@ export class ObjectRenderer {
         this.visuals.set(object.instanceId, visual)
         this.container.addChild(visual.root)
       }
-      this.applyTransform(visual, object, showFootprints && selectedId === object.instanceId)
+      const selected = showFootprints && selectedId === object.instanceId
+      const hovered =
+        showFootprints &&
+        hoveredId === object.instanceId &&
+        hoveredId !== selectedId
+      this.applyTransform(visual, object, selected, hovered)
     }
   }
 
@@ -121,6 +129,7 @@ export class ObjectRenderer {
     visual: ObjectVisual,
     object: PlacedGardenObject,
     showFootprint: boolean,
+    showHoverRing: boolean,
   ): void {
     const asset = assetsById.get(object.assetId)
     visual.root.position.set(object.x, object.y)
@@ -145,11 +154,23 @@ export class ObjectRenderer {
       )
       visual.footprint.stroke({ color: '#B66D4F', alpha: 0.7, width: 2 })
       visual.footprint.fill({ color: '#B66D4F', alpha: 0.12 })
+    } else if (showHoverRing && asset) {
+      visual.footprint.ellipse(
+        0,
+        0,
+        asset.footprintWidth / 2,
+        asset.footprintHeight / 2,
+      )
+      visual.footprint.stroke({ color: '#8BAF6F', alpha: 0.55, width: 1.5 })
     }
   }
 
   getSelectedId(): string | null {
     return this.selectedId
+  }
+
+  getHoveredId(): string | null {
+    return this.hoveredId
   }
 
   destroy(): void {
