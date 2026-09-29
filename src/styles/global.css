@@ -20,6 +20,19 @@ body,
     linear-gradient(160deg, #efe8d4 0%, var(--color-parchment) 45%, #ddd4b8 100%);
   color: var(--color-ink);
   font-family: var(--font-body);
+  transition:
+    background-color 200ms ease,
+    color 200ms ease,
+    border-color 200ms ease;
+}
+
+html[data-theme="dark"],
+html[data-theme="dark"] body,
+html[data-theme="dark"] #root {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(106, 155, 114, 0.18), transparent 40%),
+    radial-gradient(circle at 80% 0%, rgba(200, 132, 95, 0.1), transparent 35%),
+    linear-gradient(160deg, #161d18 0%, var(--color-parchment) 45%, #1a221c 100%);
 }
 
 button,
@@ -68,8 +81,22 @@ button:disabled {
 .top-bar,
 .asset-panel,
 .bottom-bar,
-.selection-toolbar {
-  transition: opacity 280ms ease, transform 280ms ease;
+.selection-toolbar,
+.dialog,
+.btn,
+.chip,
+.tool-btn,
+.asset-card,
+.garden-name-input,
+.user-chip,
+.settings-row select,
+.settings-row input[type="range"] {
+  transition:
+    opacity 280ms ease,
+    transform 280ms ease,
+    background-color 200ms ease,
+    color 200ms ease,
+    border-color 200ms ease;
 }
 
 .top-bar {
@@ -590,6 +617,16 @@ button:disabled {
   background:
     radial-gradient(circle at 30% 20%, rgba(168, 184, 137, 0.35), transparent 45%),
     linear-gradient(160deg, #efe8d4, var(--color-parchment));
+  transition:
+    background-color 200ms ease,
+    color 200ms ease,
+    border-color 200ms ease;
+}
+
+html[data-theme="dark"] .canvas-placeholder {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(106, 155, 114, 0.22), transparent 45%),
+    linear-gradient(160deg, #161d18, var(--color-parchment));
 }
 
 @keyframes fade-in {

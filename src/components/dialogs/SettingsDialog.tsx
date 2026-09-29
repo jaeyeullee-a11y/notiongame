@@ -1,6 +1,7 @@
 import { audioManager } from '@/systems/ambience/audio'
 import { useEditorStore } from '@/stores/editorStore'
 import { useGardenStore } from '@/stores/gardenStore'
+import type { ColorTheme } from '@/schemas/garden'
 import type { GardenApplication } from '@/game/GardenApplication'
 
 type Props = {
@@ -27,6 +28,18 @@ export function SettingsDialog({ gardenApp }: Props) {
       <div className="dialog">
         <h3>Settings</h3>
         <div className="settings-grid">
+          <label className="settings-row">
+            <span>Theme</span>
+            <select
+              value={settings.colorTheme ?? 'system'}
+              onChange={(e) => update({ colorTheme: e.target.value as ColorTheme })}
+              aria-label="Color theme"
+            >
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+              <option value="system">System</option>
+            </select>
+          </label>
           <label className="settings-row">
             <span>Music</span>
             <input

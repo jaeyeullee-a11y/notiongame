@@ -20,4 +20,18 @@
   --asset-panel-width: 280px;
   --asset-panel-collapsed: 56px;
   --radius: 10px;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --color-parchment: #1e2420;
+  --color-ui-cream: #252c28;
+  --color-panel-bg: rgba(30, 36, 32, 0.94);
+  --color-panel-border: #3a4a3e;
+  --color-ink: #d8e4d0;
+  --color-ink-muted: #8fa888;
+  --color-accent: #c8845f;
+  --color-dark-foliage: #6a9b72;
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.35);
+  color-scheme: dark;
 }
