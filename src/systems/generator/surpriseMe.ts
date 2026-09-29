@@ -168,6 +168,14 @@ export function generateSurpriseGarden(seed = Date.now()): {
       )
     }
 
+    const animalPool = ['dog', 'cat', 'horse'] as const
+    if (rand() > 0.35) {
+      const animalId = animalPool[Math.floor(rand() * animalPool.length)] ?? 'dog'
+      objects.push(
+        placeObject(animalId, 400 + rand() * 1600, 400 + rand() * 800, rand),
+      )
+    }
+
     // Keep objects in world bounds
     for (const object of objects) {
       object.x = Math.min(theme.world.width - 40, Math.max(40, object.x))

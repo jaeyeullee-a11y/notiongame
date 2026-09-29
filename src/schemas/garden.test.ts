@@ -8,10 +8,10 @@ import {
 } from '@/schemas/garden'
 
 describe('garden content', () => {
-  it('loads at least 20 placeable assets across 6 categories', () => {
+  it('loads at least 20 placeable assets across 7 categories', () => {
     expect(gardenAssets.length).toBeGreaterThanOrEqual(20)
     const categories = new Set(gardenAssets.map((a) => a.category))
-    expect(categories.size).toBe(6)
+    expect(categories.size).toBe(7)
   })
 
   it('validates generated surprise gardens', () => {
@@ -172,5 +172,82 @@ describe('신규 에셋 검증 (v2 — cherry-blossom, fountain)', () => {
     expect(fountain!.sortOffset).toBeGreaterThanOrEqual(8)
     expect(fountain!.canRotate).toBe(false)
     expect(fountain!.canFlip).toBe(false)
+  })
+})
+
+describe('동물 캐릭터 에셋 검증 (dog, cat, horse)', () => {
+  test.each(['dog', 'cat', 'horse'])(
+    '에셋 %s가 assetsById에 존재한다',
+    (id) => {
+      expect(assetsById.has(id)).toBe(true)
+    },
+  )
+
+  test.each(['dog', 'cat', 'horse'])(
+    '에셋 %s가 animals 카테고리에 속한다',
+    (id) => {
+      const asset = assetsById.get(id)
+      expect(asset).toBeDefined()
+      expect(asset!.category).toBe('animals')
+    },
+  )
+
+  test('animals 카테고리에 최소 3종 에셋이 있다', () => {
+    const count = gardenAssets.filter((a) => a.category === 'animals').length
+    expect(count).toBeGreaterThanOrEqual(3)
+  })
+
+  test('모든 동물 에셋이 animal 태그를 포함한다', () => {
+    const animals = gardenAssets.filter((a) => a.category === 'animals')
+    for (const animal of animals) {
+      expect(animal.tags).toContain('animal')
+    }
+  })
+
+  test('dog는 animal/pet/dog 태그로 검색된다', () => {
+    const byAnimal = searchAssets('animal')
+    const byPet = searchAssets('pet')
+    const byDog = searchAssets('dog')
+    expect(byAnimal.some((a) => a.id === 'dog')).toBe(true)
+    expect(byPet.some((a) => a.id === 'dog')).toBe(true)
+    expect(byDog.some((a) => a.id === 'dog')).toBe(true)
+  })
+
+  test('cat은 animal/pet/cat 태그로 검색된다', () => {
+    const byAnimal = searchAssets('animal')
+    const byPet = searchAssets('pet')
+    const byCat = searchAssets('cat')
+    expect(byAnimal.some((a) => a.id === 'cat')).toBe(true)
+    expect(byPet.some((a) => a.id === 'cat')).toBe(true)
+    expect(byCat.some((a) => a.id === 'cat')).toBe(true)
+  })
+
+  test('horse는 animal/horse 태그로 검색된다', () => {
+    const byAnimal = searchAssets('animal')
+    const byHorse = searchAssets('horse')
+    expect(byAnimal.some((a) => a.id === 'horse')).toBe(true)
+    expect(byHorse.some((a) => a.id === 'horse')).toBe(true)
+  })
+
+  test('동물 에셋은 회전 및 반전이 가능하다', () => {
+    for (const id of ['dog', 'cat', 'horse']) {
+      const asset = assetsById.get(id)
+      expect(asset).toBeDefined()
+      expect(asset!.canRotate).toBe(true)
+      expect(asset!.canFlip).toBe(true)
+    }
+  })
+
+  test('surprise garden에 동물이 배치될 수 있다', () => {
+    const animalIds = new Set(['dog', 'cat', 'horse'])
+    let found = false
+    for (let seed = 0; seed < 20; seed++) {
+      const save = createNewGardenSave(`Test-${seed}`, 'surprise', seed)
+      if (save.objects.some((o) => animalIds.has(o.assetId))) {
+        found = true
+        break
+      }
+    }
+    expect(found).toBe(true)
   })
 })

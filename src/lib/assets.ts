@@ -12,6 +12,7 @@ export const ASSET_CATEGORIES: Array<{ id: AssetCategory; label: string }> = [
   { id: 'trees', label: 'Trees' },
   { id: 'features', label: 'Garden Features' },
   { id: 'structures', label: 'Structures' },
+  { id: 'animals', label: 'Animals' },
 ]
 
 export const gardenAssets: GardenAssetDefinition[] = assetsData.assets.map(
