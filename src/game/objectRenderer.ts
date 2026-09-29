@@ -121,7 +121,7 @@ export class ObjectRenderer {
       sprite.height = asset?.nativeHeight ?? 80
     }
 
-    root.addChild(footprint, sprite)
+    root.addChild(sprite, footprint)
     return { root, sprite, footprint, assetId }
   }
 
@@ -145,23 +145,19 @@ export class ObjectRenderer {
     }
 
     visual.footprint.clear()
-    if (showFootprint && asset) {
-      visual.footprint.ellipse(
-        0,
-        0,
-        asset.footprintWidth / 2,
-        asset.footprintHeight / 2,
-      )
-      visual.footprint.stroke({ color: '#B66D4F', alpha: 0.7, width: 2 })
-      visual.footprint.fill({ color: '#B66D4F', alpha: 0.12 })
-    } else if (showHoverRing && asset) {
-      visual.footprint.ellipse(
-        0,
-        0,
-        asset.footprintWidth / 2,
-        asset.footprintHeight / 2,
-      )
-      visual.footprint.stroke({ color: '#8BAF6F', alpha: 0.55, width: 1.5 })
+    if (!asset) return
+    const rx = asset.footprintWidth / 2
+    const ry = asset.footprintHeight / 2
+    if (showFootprint) {
+      visual.footprint.ellipse(0, 0, rx, ry)
+      visual.footprint.fill({ color: '#B66D4F', alpha: 0.18 })
+      visual.footprint.ellipse(0, 0, rx, ry)
+      visual.footprint.stroke({ color: '#B66D4F', alpha: 1, width: 3, pixelLine: true })
+    } else if (showHoverRing) {
+      visual.footprint.ellipse(0, 0, rx, ry)
+      visual.footprint.stroke({ color: '#F7F4EA', alpha: 1, width: 6, pixelLine: true })
+      visual.footprint.ellipse(0, 0, rx, ry)
+      visual.footprint.stroke({ color: '#2F6A38', alpha: 1, width: 3, pixelLine: true })
     }
   }
 
