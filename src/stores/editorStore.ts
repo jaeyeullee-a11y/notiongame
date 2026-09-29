@@ -23,6 +23,7 @@ type EditorState = {
   previousTool: EditorTool
   selectedAssetId: string | null
   selectedObjectId: string | null
+  hoveredObjectId: string | null
   terrainTypeId: TerrainTypeId
   brushSize: BrushSize
   brushShape: BrushShape
@@ -41,6 +42,7 @@ type EditorState = {
   setTool: (tool: EditorTool) => void
   setSelectedAssetId: (assetId: string | null) => void
   setSelectedObjectId: (instanceId: string | null) => void
+  setHoveredObjectId: (instanceId: string | null) => void
   setTerrainTypeId: (terrainTypeId: TerrainTypeId) => void
   setBrushSize: (size: BrushSize) => void
   setBrushShape: (shape: BrushShape) => void
@@ -65,6 +67,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   previousTool: 'select',
   selectedAssetId: 'young-oak',
   selectedObjectId: null,
+  hoveredObjectId: null,
   terrainTypeId: 'grass',
   brushSize: 2,
   brushShape: 'round',
@@ -87,6 +90,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       selectedObjectId: tool === 'place' ? null : state.selectedObjectId,
       observeMode: tool === 'observe',
       observeUiHidden: tool === 'observe',
+      hoveredObjectId: tool === 'select' ? state.hoveredObjectId : null,
     })),
 
   setSelectedAssetId: (assetId) =>
@@ -94,12 +98,14 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       selectedAssetId: assetId,
       tool: assetId ? 'place' : get().tool,
       selectedObjectId: null,
+      hoveredObjectId: assetId ? null : get().hoveredObjectId,
     }),
 
   setSelectedObjectId: (instanceId) => set({ selectedObjectId: instanceId }),
+  setHoveredObjectId: (hoveredObjectId) => set({ hoveredObjectId }),
 
   setTerrainTypeId: (terrainTypeId) =>
-    set({ terrainTypeId, tool: 'terrain' }),
+    set({ terrainTypeId, tool: 'terrain', hoveredObjectId: null }),
 
   setBrushSize: (brushSize) => set({ brushSize }),
   setBrushShape: (brushShape) => set({ brushShape }),
@@ -112,10 +118,15 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       observeMode: enabled,
       observeUiHidden: enabled,
       tool: enabled ? 'observe' : state.previousTool === 'observe' ? 'select' : state.previousTool,
+      hoveredObjectId: null,
     })),
 
   setObserveUiHidden: (observeUiHidden) => set({ observeUiHidden }),
-  setSnapshotMode: (snapshotMode) => set({ snapshotMode }),
+  setSnapshotMode: (snapshotMode) =>
+    set((state) => ({
+      snapshotMode,
+      hoveredObjectId: snapshotMode ? null : state.hoveredObjectId,
+    })),
   setDialog: (dialog) => set({ dialog }),
   setStatusMessage: (statusMessage) => set({ statusMessage }),
 

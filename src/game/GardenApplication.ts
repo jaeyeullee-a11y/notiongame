@@ -71,6 +71,7 @@ export class GardenApplication {
   private lastTerrainRef: TerrainCell[] | null = null
   private lastObjectsRef: PlacedGardenObject[] | null = null
   private lastSelectedId: string | null = null
+  private lastHoveredId: string | null = null
   private lastSeason: Season | null = null
   private lastObserve = false
   private lastSnapshot = false
@@ -138,6 +139,7 @@ export class GardenApplication {
       useEditorStore.subscribe((state, prev) => {
         if (
           state.selectedObjectId !== prev.selectedObjectId ||
+          state.hoveredObjectId !== prev.hoveredObjectId ||
           state.observeMode !== prev.observeMode ||
           state.snapshotMode !== prev.snapshotMode ||
           state.tool !== prev.tool ||
@@ -212,11 +214,21 @@ export class GardenApplication {
       this.lastTerrainRef = garden.terrain
     }
 
+    let hoveredId = editor.hoveredObjectId
+    if (
+      hoveredId &&
+      !garden.objects.some((object) => object.instanceId === hoveredId)
+    ) {
+      useEditorStore.getState().setHoveredObjectId(null)
+      hoveredId = null
+    }
+
     const showFootprints = !editor.observeMode && !editor.snapshotMode
     if (
       force ||
       garden.objects !== this.lastObjectsRef ||
       editor.selectedObjectId !== this.lastSelectedId ||
+      hoveredId !== this.lastHoveredId ||
       editor.observeMode !== this.lastObserve ||
       editor.snapshotMode !== this.lastSnapshot ||
       seasonChanged
@@ -224,11 +236,13 @@ export class GardenApplication {
       this.objectRenderer.sync(
         garden.objects,
         editor.selectedObjectId,
+        hoveredId,
         showFootprints,
         garden.season,
       )
       this.lastObjectsRef = garden.objects
       this.lastSelectedId = editor.selectedObjectId
+      this.lastHoveredId = hoveredId
       this.lastObserve = editor.observeMode
       this.lastSnapshot = editor.snapshotMode
     }
@@ -276,6 +290,7 @@ export class GardenApplication {
     app.stage.on('pointermove', (event) => this.onPointerMove(event))
     app.stage.on('pointerup', (event) => this.onPointerUp(event))
     app.stage.on('pointerupoutside', (event) => this.onPointerUp(event))
+    app.canvas.addEventListener('pointerleave', () => this.clearHover())
     app.canvas.addEventListener(
       'wheel',
       (event) => {
@@ -388,6 +403,7 @@ export class GardenApplication {
     this.lastPointer = { x: event.global.x, y: event.global.y }
 
     if (this.panning) {
+      this.clearHover()
       const camera = useGardenStore.getState().camera
       useGardenStore.getState().setCamera(
         clampCamera(
@@ -405,11 +421,13 @@ export class GardenApplication {
     }
 
     if (this.painting && editor.tool === 'terrain') {
+      this.clearHover()
       this.paintAt(world.x, world.y)
       return
     }
 
     if (this.draggingObject && this.dragStart && editor.selectedObjectId) {
+      this.clearHover()
       const nx = this.dragStart.objX + (world.x - this.dragStart.x)
       const ny = this.dragStart.objY + (world.y - this.dragStart.y)
       useGardenStore.getState().updateObject(editor.selectedObjectId, {
@@ -421,6 +439,7 @@ export class GardenApplication {
 
     this.updateGhost(world.x, world.y)
     this.updateBrushPreview(world.x, world.y)
+    this.updateHover(world.x, world.y)
   }
 
   private onPointerUp(_event: { global: { x: number; y: number } }): void {
@@ -465,6 +484,58 @@ export class GardenApplication {
     this.lastPaintCell = null
     this.draggingObject = false
     this.dragStart = null
+    const world = this.getWorldPoint(this.lastPointer.x, this.lastPointer.y)
+    this.updateHover(world.x, world.y)
+  }
+
+  private hoverEligible(): boolean {
+    const editor = useEditorStore.getState()
+    return (
+      editor.tool === 'select' &&
+      !this.panning &&
+      !this.painting &&
+      !this.draggingObject &&
+      !editor.observeMode &&
+      !editor.snapshotMode
+    )
+  }
+
+  private clearHover(): void {
+    if (useEditorStore.getState().hoveredObjectId !== null) {
+      useEditorStore.getState().setHoveredObjectId(null)
+    }
+    this.applyHoverCursor(null)
+  }
+
+  private applyHoverCursor(hoveredId: string | null): void {
+    if (!this.app) return
+    const editor = useEditorStore.getState()
+    const showPointer =
+      hoveredId !== null &&
+      editor.tool === 'select' &&
+      !editor.observeMode &&
+      !editor.snapshotMode
+    this.app.canvas.style.cursor = showPointer ? 'pointer' : 'default'
+  }
+
+  private updateHover(worldX: number, worldY: number): void {
+    if (!this.hoverEligible()) {
+      this.clearHover()
+      return
+    }
+
+    const hit = hitTestObjects(
+      worldX,
+      worldY,
+      useGardenStore.getState().objects,
+      assetsById,
+    )
+    const nextHoveredId = hit?.instanceId ?? null
+    const prevHoveredId = useEditorStore.getState().hoveredObjectId
+    if (nextHoveredId !== prevHoveredId) {
+      useEditorStore.getState().setHoveredObjectId(nextHoveredId)
+    }
+    this.applyHoverCursor(nextHoveredId)
   }
 
   private onWheel(event: WheelEvent): void {
@@ -833,6 +904,7 @@ export class GardenApplication {
   async captureThumbnail(): Promise<string | undefined> {
     if (!this.app) return undefined
     useEditorStore.getState().setSelectedObjectId(null)
+    useEditorStore.getState().setHoveredObjectId(null)
     this.brushPreview.clear()
     this.objectRenderer.setGhost(null, 0, 0, false)
     await new Promise((r) => requestAnimationFrame(() => r(null)))
