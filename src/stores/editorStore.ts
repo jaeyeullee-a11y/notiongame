@@ -6,8 +6,10 @@ import type {
   EditorTool,
   TerrainTypeId,
 } from '@/schemas/garden'
+import { audioManager } from '@/systems/ambience/audio'
 import { CommandStack } from '@/systems/command/CommandStack'
 import type { GardenCommand } from '@/systems/command/types'
+import { useGardenStore } from '@/stores/gardenStore'
 
 type DialogId =
   | 'save'
@@ -37,6 +39,8 @@ type EditorState = {
   canRedo: boolean
   statusMessage: string | null
   commandStack: CommandStack
+  /** Session-only master mute; not persisted in GardenSaveData. */
+  masterMuted: boolean
 
   setTool: (tool: EditorTool) => void
   setSelectedAssetId: (assetId: string | null) => void
@@ -58,6 +62,7 @@ type EditorState = {
   redo: () => void
   clearHistory: () => void
   syncHistoryFlags: () => void
+  toggleMasterMute: () => void
 }
 
 export const useEditorStore = create<EditorState>((set, get) => ({
@@ -79,6 +84,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   canRedo: false,
   statusMessage: null,
   commandStack: new CommandStack(),
+  masterMuted: false,
 
   setTool: (tool) =>
     set((state) => ({
@@ -151,5 +157,21 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   syncHistoryFlags: () => {
     const stack = get().commandStack
     set({ canUndo: stack.canUndo, canRedo: stack.canRedo })
+  },
+
+  toggleMasterMute: () => {
+    const nextMuted = !get().masterMuted
+    set({ masterMuted: nextMuted })
+    const settings = useGardenStore.getState().settings
+    audioManager.unlock()
+    if (nextMuted) {
+      audioManager.applySettings({
+        ...settings,
+        musicEnabled: false,
+        ambienceEnabled: false,
+      })
+    } else {
+      audioManager.applySettings(settings)
+    }
   },
 }))

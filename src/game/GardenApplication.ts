@@ -578,6 +578,11 @@ export class GardenApplication {
       useEditorStore.getState().setObserveMode(!editor.observeMode)
     }
 
+    if (!mod && !event.altKey && event.code === 'KeyM') {
+      event.preventDefault()
+      useEditorStore.getState().toggleMasterMute()
+    }
+
     if (!mod && !event.altKey) {
       const seasonByKey: Record<string, Season> = {
         '1': 'spring',
