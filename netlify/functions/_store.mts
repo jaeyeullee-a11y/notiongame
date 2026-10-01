@@ -1,7 +1,9 @@
 import { getStore } from '@netlify/blobs'
 
 /** Site-wide blob store with strong read-after-write consistency. */
-export function accountStore(name: 'stillgarden-users' | 'stillgarden-saves') {
+export function accountStore(
+  name: 'stillgarden-users' | 'stillgarden-saves' | 'stillgarden-shares',
+) {
   return getStore({
     name,
     consistency: 'strong',
